@@ -4,7 +4,8 @@
   "description": "This project is a part of The Odin Project's curriculum with the goal of exercising TDD skills.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "jest --watch *.js"
   },
   "author": "",
   "license": "ISC",
