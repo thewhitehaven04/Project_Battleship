@@ -1,3 +1,4 @@
+import { PubSub } from '../eventBus';
 import { Ship } from './ship';
 
 /**
@@ -13,14 +14,24 @@ import { Ship } from './ship';
  */
 
 class Gameboard {
+
+  /** @type {PubSub} */
+  #pubSub;
+  /** @type {Array<Ship>} */
+  #ships;
+
   /**
-   * @param {Number} size
+   * @param {number} size
+   * @param {PubSub} pubSub
    */
-  constructor(size) {
-    /**
-     * @type Array<Array<BoardCell>>
-     */
+  constructor(size, pubSub) {
+
+    this.#pubSub = pubSub;
+    this.#ships = [];
+    
+    /** @type Array<Array<BoardCell>> */
     this.board = Array(size);
+    
     for (let i = 0; i < size; i++) {
       this.board[i] = Array(size);
       for (let j = 0; j < size; j++) {
@@ -33,12 +44,17 @@ class Gameboard {
   }
 
   /**
-   * 
-   * @param {BoardCoordinates} start 
-   * @param {BoardCoordinates} end 
+   * @param {BoardCoordinates} start
+   * @param {BoardCoordinates} end
    */
-  #doesNotIntersect(start, end) {
-    return  
+  #hasIntersectionWithOtherShips(start, end) {
+    for (let i = start.x; i <= end.x; i++)
+      if (this.board[i][start.y].ship) return true;
+
+    for (let j = start.y; j <= end.y; j++)
+      if (this.board[start.x][j].ship) return true;
+
+    return false;
   }
 
   /**
@@ -51,12 +67,31 @@ class Gameboard {
    */
   placeShip({ x, y }, shipFactory, vertical = false) {
     const ship = shipFactory();
+    const errorMsg =
+      'This ship cannot be placed in this way as it instersects with previously placed ships';
     if (x > 0 && y > 0) {
       if (!vertical && x + ship.length - 1 < this.board.length) {
-        for (let j = x; j < x + ship.length - 1; j++) this.board[j][y].ship = ship;
+        if (
+          this.#hasIntersectionWithOtherShips(
+            { x, y },
+            { x: x + ship.length - 1, y },
+          )
+        )
+          throw new RangeError(errorMsg);
+
+        for (let j = x; j < x + ship.length; j++) this.board[j][y].ship = ship;
+        this.#ships.push(ship);
         return ship;
       } else if (vertical && y + ship.length - 1 < this.board.length) {
-        for (let k = y; k < y + ship.length - 1; k++) this.board[x][k].ship = ship;
+        if (
+          this.#hasIntersectionWithOtherShips(
+            { x, y },
+            { x, y: y + ship.length - 1 },
+          )
+        )
+          throw new RangeError(errorMsg);
+        for (let k = y; k < y + ship.length; k++) this.board[x][k].ship = ship;
+        this.#ships.push(ship);
         return ship;
       }
     }
@@ -70,6 +105,26 @@ class Gameboard {
     let boardCell = this.board[x][y];
     boardCell.ship?.hit();
     boardCell.isHit = true;
+    
+    if (this.#ships.every(ship => ship.isSunk())) {
+      this.#pubSub.notify('AllShipsDestroyed', {});
+    }
+  }
+
+  /**
+   * @returns {Array<BoardCoordinates>}
+   */
+  getMissedHits() {
+    /** @type {Array<BoardCoordinates>} */
+    const missedHits = [];
+    this.board.forEach((cellArr, i) =>
+      cellArr.forEach((cell, j) => {
+        if (cell.isHit === true && cell.ship === null) {
+          missedHits.push({ x: i, y: j });
+        }
+      }),
+    );
+    return missedHits;
   }
 }
 
