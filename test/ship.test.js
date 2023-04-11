@@ -1,4 +1,4 @@
-const { Ship } = require('../src/model/ship');
+import { Ship } from '../src/service/ship';
 
 it('Ship object initialization', () => {
   const hasbroDestroyer = new Ship(3);

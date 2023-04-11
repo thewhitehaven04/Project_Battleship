@@ -1,9 +1,9 @@
-const { PubSub } = require("../src/eventBus");
-const { Gameboard } = require("../src/model/gameboard");
-const { createDestroyer, createCruiser } = require("../src/model/ship");
+import { PubSub } from "../src/utils/eventBus";
+import { Gameboard } from "../src/service/gameboard";
+import { createDestroyer, createCruiser } from "../src/service/ship";
 
 
-jest.mock("./../src/eventBus.js");
+jest.mock("./../src/utils/eventBus");
 
 it('All ships destroyed event', () => {
   const ps = new PubSub();

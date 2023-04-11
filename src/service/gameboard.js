@@ -1,5 +1,12 @@
-import { PubSub } from '../eventBus';
+import { PubSub } from '../utils/eventBus';
 import { Ship } from './ship';
+import { v4 as uuidv4 } from 'uuid';
+
+/**
+ * @typedef {Object} GameboardDto
+ * @property {string} id
+ * @property {Array<Array<BoardCell>>} board
+ */
 
 /**
  * @typedef {Object} BoardCoordinates
@@ -20,18 +27,20 @@ class Gameboard {
   /** @type {Array<Ship>} */
   #ships;
 
+  #boardId;
+
   /**
    * @param {number} size
    * @param {PubSub} pubSub
    */
   constructor(size, pubSub) {
-
     this.#pubSub = pubSub;
     this.#ships = [];
     
+    this.#boardId = uuidv4(); 
     /** @type Array<Array<BoardCell>> */
     this.board = Array(size);
-    
+
     for (let i = 0; i < size; i++) {
       this.board[i] = Array(size);
       for (let j = 0; j < size; j++) {
@@ -125,6 +134,16 @@ class Gameboard {
       }),
     );
     return missedHits;
+  }
+
+  /**
+   * @returns {GameboardDto}
+   */
+  toJSON() {
+    return {
+      id: this.#boardId,
+      board: this.board
+    }
   }
 }
 

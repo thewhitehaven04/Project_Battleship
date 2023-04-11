@@ -1,12 +1,6 @@
-const { PubSub } = require('../src/eventBus');
-const {
-  createBattleship,
-  createCarrier,
-  createCruiser,
-  createDestroyer,
-  createSubmarine,
-} = require('../src/model/ship');
-const { Gameboard } = require('./../src/model/gameboard');
+import { PubSub } from '../src/utils/eventBus';
+import { createBattleship, createCarrier, createCruiser, createDestroyer, createSubmarine } from '../src/service/ship';
+import { Gameboard } from './../src/service/gameboard';
 
 it('Initializing gameboard', () => {
   const gameboard = new Gameboard(10, new PubSub());
