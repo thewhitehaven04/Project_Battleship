@@ -25,9 +25,7 @@ class Player {
     this.#pubSub = pubSub;
   }
 
-  /**
-   * @param {import("./gameboard").BoardCoordinates} cell
-   */
+  /** @param {import("./gameboard").BoardCoordinates} cell */
   performMove(cell) {
     this.#pubSub.notify(PLAYER_MOVE_EVENT, {
       name: this.name,
