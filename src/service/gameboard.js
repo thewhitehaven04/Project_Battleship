@@ -1,10 +1,8 @@
 import { PubSub } from '../utils/eventBus';
 import { Ship } from './ship';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * @typedef {Object} GameboardDto
- * @property {string} id
  * @property {Array<Array<BoardCell>>} board
  */
 
@@ -20,14 +18,17 @@ import { v4 as uuidv4 } from 'uuid';
  * @property {Boolean} isHit
  */
 
-class Gameboard {
+/**
+ * @typedef {GameboardDto} AllShipsDestroyedEvent 
+ */
 
+const ALL_SHIPS_DESTROYED_EVENT = 'AllShipsDestroyed';
+
+class Gameboard {
   /** @type {PubSub} */
   #pubSub;
   /** @type {Array<Ship>} */
   #ships;
-
-  #boardId;
 
   /**
    * @param {number} size
@@ -36,8 +37,7 @@ class Gameboard {
   constructor(size, pubSub) {
     this.#pubSub = pubSub;
     this.#ships = [];
-    
-    this.#boardId = uuidv4(); 
+
     /** @type Array<Array<BoardCell>> */
     this.board = Array(size);
 
@@ -114,10 +114,9 @@ class Gameboard {
     let boardCell = this.board[x][y];
     boardCell.ship?.hit();
     boardCell.isHit = true;
-    
-    if (this.#ships.every(ship => ship.isSunk())) {
-      this.#pubSub.notify('AllShipsDestroyed', {});
-    }
+
+    if (this.#ships.every((ship) => ship.isSunk()))
+      this.#pubSub.notify(ALL_SHIPS_DESTROYED_EVENT, this.toJSON());
   }
 
   /**
@@ -141,10 +140,9 @@ class Gameboard {
    */
   toJSON() {
     return {
-      id: this.#boardId,
-      board: this.board
-    }
+      board: this.board,
+    };
   }
 }
 
-export { Gameboard };
+export { Gameboard, ALL_SHIPS_DESTROYED_EVENT };

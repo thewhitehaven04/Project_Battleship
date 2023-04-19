@@ -1,12 +1,13 @@
-import { GameLoop } from '../src/service/game';
-import { Gameboard } from '../src/service/gameboard';
+import { GAME_FINISHED_EVENT, GameLoop } from '../src/service/game';
+import {
+  ALL_SHIPS_DESTROYED_EVENT,
+  Gameboard,
+} from '../src/service/gameboard';
 import { Player } from '../src/service/player';
 import { createDestroyer } from '../src/service/ship';
 import { PubSub } from '../src/utils/eventBus';
 
-jest.mock('./../src/utils/eventBus.js');
-
-it('Players make moves one after another', () => {
+it('Players moves alternate', () => {
   const ps = new PubSub();
 
   const playerJim = new Player('Jim', ps);
@@ -18,23 +19,25 @@ it('Players make moves one after another', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const game = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry]);
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
 
-  const turn1Player = game.requestNextMove();
-  const turn2Player = game.requestNextMove();
-  const turn3Player = game.requestNextMove();
-  const turn4Player = game.requestNextMove();
+  const firstPlayer = loop.nextTurn();
+  firstPlayer.performMove({ x: 1, y: 1 });
+  const secondPlayer = loop.nextTurn();
+  secondPlayer.performMove({ x: 1, y: 1 });
 
-  expect(turn1Player).toBeTruthy();
-  expect(turn2Player).toBeTruthy();
-  expect(turn3Player).toBeTruthy();
-  expect(turn4Player).toBeTruthy();
+  const firstPlayerAgain = loop.nextTurn();
+  firstPlayerAgain.performMove({ x: 2, y: 2 });
+  const secondPlayerAgain = loop.nextTurn();
+  secondPlayerAgain.performMove({ x: 2, y: 2 });
 
-  expect(turn1Player).toStrictEqual(turn3Player);
-  expect(turn2Player).toStrictEqual(turn4Player);
+  expect(Object.is(firstPlayer, secondPlayer)).toBeFalsy();
+  expect(Object.is(firstPlayerAgain, secondPlayerAgain)).toBeFalsy();
+  expect(Object.is(firstPlayer, firstPlayerAgain)).toBeTruthy();
+  expect(Object.is(secondPlayer, secondPlayerAgain)).toBeTruthy();
 });
 
-it("Player loses after losing all ships", () => {
+it('Do not alternate players until a move is performed by the last player', () => {
   const ps = new PubSub();
 
   const playerJim = new Player('Jim', ps);
@@ -46,12 +49,112 @@ it("Player loses after losing all ships", () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const game = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry]);
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
 
-  game.requestNextMove().performMove({ x: 2, y: 2 });
-  game.requestNextMove().performMove({ x: 3, y: 3 });
-  game.requestNextMove().performMove({ x: 3, y: 2 });
+  const firstPlayer = loop.nextTurn();
+  const secondPlayer = loop.nextTurn();
+  expect(Object.is(firstPlayer, secondPlayer)).toBeTruthy();
+});
 
-  expect(ps.notify).toBeCalledTimes(3);
-  expect(ps.notify).toHaveBeenLastCalledWith('WinnerFoundEvent', { name: 'Jim' });
-})
+it('First player', () => {
+  const ps = new PubSub();
+
+  const playerJim = new Player('Jim', ps);
+  const playerHarry = new Player('Harry', ps);
+
+  const gbJim = new Gameboard(5, ps);
+  gbJim.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  const gbHarry = new Gameboard(5, ps);
+  gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
+
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  expect(Object.is(loop.nextTurn(), playerJim)).toBeTruthy();
+});
+
+it('Move processing integration', () => {
+  const ps = new PubSub();
+
+  const playerJim = new Player('Jim', ps);
+  const playerHarry = new Player('Harry', ps);
+
+  const gbJim = new Gameboard(5, ps);
+  gbJim.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  const gbHarry = new Gameboard(5, ps);
+  gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
+
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  loop.nextTurn().performMove({ x: 3, y: 3 });
+
+  expect(gbHarry.getMissedHits()).toContainEqual({ x: 3, y: 3 });
+});
+
+it('Successive hits from the same player are not allowed', () => {
+  const ps = new PubSub();
+
+  const playerJim = new Player('Jim', ps);
+  const playerHarry = new Player('Harry', ps);
+
+  const gbJim = new Gameboard(5, ps);
+  gbJim.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  const gbHarry = new Gameboard(5, ps);
+  gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
+
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const player = loop.nextTurn();
+  player.performMove({ x: 4, y: 4 });
+  player.performMove({ x: 3, y: 4 });
+
+  const missed = gbHarry.getMissedHits();
+  expect(missed).toHaveLength(1);
+  expect(missed).toContainEqual({ x: 4, y: 4 });
+});
+
+it('AllShipsDestroyed event is produced when all ships are destroyed', () => {
+  const ps = new PubSub();
+  const spyNotify = jest.spyOn(ps, 'notify');
+
+  const playerJim = new Player('Jim', ps);
+  const playerHarry = new Player('Harry', ps);
+
+  const gbJim = new Gameboard(5, ps);
+  gbJim.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  const gbHarry = new Gameboard(5, ps);
+  gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
+
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  loop.nextTurn().performMove({ x: 2, y: 2 });
+  loop.nextTurn().performMove({ x: 1, y: 1 });
+  loop.nextTurn().performMove({ x: 3, y: 2 });
+
+  expect(spyNotify).toHaveBeenCalledWith(
+    ALL_SHIPS_DESTROYED_EVENT,
+    gbHarry.toJSON(),
+  );
+});
+
+it('GameFinished event is produced when all ships are destroyed', () => {
+  const ps = new PubSub();
+  const spyNotify = jest.spyOn(ps, 'notify');
+
+  const playerJim = new Player('Jim', ps);
+  const playerHarry = new Player('Harry', ps);
+
+  const gbJim = new Gameboard(5, ps);
+  gbJim.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  const gbHarry = new Gameboard(5, ps);
+  gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
+
+  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  loop.nextTurn().performMove({ x: 2, y: 2 });
+  loop.nextTurn().performMove({ x: 1, y: 1 });
+  loop.nextTurn().performMove({ x: 3, y: 2 });
+
+  expect(spyNotify).toHaveBeenLastCalledWith(GAME_FINISHED_EVENT, {
+    winner: playerJim.toJSON(),
+  });
+});

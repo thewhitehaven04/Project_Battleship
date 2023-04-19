@@ -1,5 +1,7 @@
 import { PubSub } from '../utils/eventBus';
 
+/** @typedef {{name: String}} PlayerDto */
+
 const PLAYER_MOVE_EVENT = 'playerMove';
 
 /**
@@ -14,23 +16,28 @@ const PLAYER_MOVE_EVENT = 'playerMove';
  */
 
 class Player {
-  #pubSub;
-
   /**
    * @param {String} name
    * @param {PubSub} pubSub
    */
   constructor(name, pubSub) {
     this.name = name;
-    this.#pubSub = pubSub;
+    this.pubSub = pubSub;
   }
 
   /** @param {import("./gameboard").BoardCoordinates} cell */
   performMove(cell) {
-    this.#pubSub.notify(PLAYER_MOVE_EVENT, {
+    this.pubSub.notify(PLAYER_MOVE_EVENT, {
       name: this.name,
       coordinates: cell,
     });
+  }
+
+  /** @returns {PlayerDto} */
+  toJSON() {
+    return {
+      name: this.name 
+    }
   }
 }
 

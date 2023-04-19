@@ -1,7 +1,7 @@
 export class PubSub {
   constructor() {
     /**
-     * @type {Map<String, Array<function>>}
+     * @type {Map<String, Array<Function>>}
      */
     this.events = new Map();
   }
@@ -12,9 +12,10 @@ export class PubSub {
    * @param {Function} cb
    */
   subscribe(event, cb) {
-    if (this.events.get(event)) {
-      this.events.get(event)?.push(cb);
-      return;
+    const events = this.events.get(event);
+    if (events && events.length >= 1) {
+      events.push(cb);
+      return
     }
 
     this.events.set(event, [cb]);

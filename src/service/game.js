@@ -1,65 +1,70 @@
 import { PubSub } from '../utils/eventBus';
-import { Gameboard } from './gameboard';
+import { ALL_SHIPS_DESTROYED_EVENT, Gameboard } from './gameboard';
 import { PLAYER_MOVE_EVENT, Player } from './player';
 
+/**
+ * @typedef {{winner: import('./player').PlayerDto}} GameFinishedEvent
+ */
+
+const GAME_FINISHED_EVENT = 'GameFinishedEvent';
+
 class GameLoop {
-  #boards;
-  #turn;
+  #counter = 0;
+
+  /** @type {Boolean} */
   #lastMoveProcessed;
 
   /**
    * @param {[Player, Player]} players
    * @param {[Gameboard, Gameboard]} boards
+   * @param {PubSub} pubSub
    */
-  constructor(players, boards) {
-    this.eventBus = new PubSub();
-    this.#boards = [
+  constructor(players, boards, pubSub) {
+    this.eventBus = pubSub;
+    this.playerBoards = [
       {
-        playerName: players[0].name,
         player: players[0],
         board: boards[0],
       },
       {
-        playerName: players[1].name,
         player: players[1],
         board: boards[1],
       },
     ];
-    this.eventBus.subscribe(PLAYER_MOVE_EVENT, this.processMove);
-
-    this.#turn = null;
-    this.winner = null;
-    this.#lastMoveProcessed = true;
-  }
-
-  /** @param {{name: String}} playerName */
-  #getBoardByName({ name }) {
-    return this.#boards.find((board) => board.playerName === name);
+    this.eventBus.subscribe(PLAYER_MOVE_EVENT, this.#processMove);
+    this.eventBus.subscribe(ALL_SHIPS_DESTROYED_EVENT, this.#gameFinished);
   }
 
   /**
-   * @param {import('./player').PlayerMoveEventDto} playerMoveEventDto
-   */
-  processMove(playerMoveEventDto) {
-    this.#getBoardByName(playerMoveEventDto)?.receiveAttack(
-      playerMoveEventDto.coordinates,
-    );
-    this.#lastMoveProcessed = true;
-  }
-
-  /**
-   * Return a player eligible for next move
+   * Returns the player whose turn it is to play.
    * @returns {Player}
    */
-  requestNextMove() {
-    if ((this.winner === null) && this.#lastMoveProcessed) {
-      this.#turn = this.#boards[0].player
-        ? this.#turn === this.#boards[1].player
-        : this.#boards[1].player;
-      this.#lastMoveProcessed = false;
-    }
-    return this.#turn;
+  nextTurn() {
+    const nextTurnPlayer = this.playerBoards[this.#counter % 2].player;
+    this.#lastMoveProcessed = false;
+    return nextTurnPlayer;
   }
+
+  /**
+   * @param {import('./player').PlayerMoveEventDto} moveEvent
+   */
+  #processMove = (moveEvent) => {
+    if (!this.#lastMoveProcessed) {
+      const boardReceivingHit = this.playerBoards
+        .filter((pb) => pb.player.name !== moveEvent.name)
+        .pop()?.board;
+      boardReceivingHit?.receiveAttack(moveEvent.coordinates);
+
+      // next turn is performed by different player
+      this.#counter++;
+      this.#lastMoveProcessed = true;
+    }
+  };
+
+  #gameFinished = () =>
+    this.eventBus.notify(GAME_FINISHED_EVENT, {
+      winner: this.playerBoards[this.#counter % 2].player.toJSON(),
+    });
 }
 
-export { GameLoop };
+export { GameLoop, GAME_FINISHED_EVENT };
