@@ -8,7 +8,7 @@ import { PLAYER_MOVE_EVENT, Player } from './player';
 
 const GAME_FINISHED_EVENT = 'GameFinishedEvent';
 
-class GameLoop {
+class Game {
   #counter = 0;
 
   /** @type {Boolean} */
@@ -21,6 +21,7 @@ class GameLoop {
    */
   constructor(players, boards, pubSub) {
     this.eventBus = pubSub;
+    this.boardSize = boards[0].size;
     this.playerBoards = [
       {
         player: players[0],
@@ -46,6 +47,18 @@ class GameLoop {
   }
 
   /**
+   * @param {Player} player
+   * @returns {?Array<import('./gameboard').BoardCoordinates>}
+   */
+  getMissedHitsForPlayer(player) {
+    return (
+      this.playerBoards
+        .find((pb) => pb.player !== player)
+        ?.board.getMissedHits() ?? null
+    );
+  }
+
+  /**
    * @param {import('./player').PlayerMoveEventDto} moveEvent
    */
   #processMove = (moveEvent) => {
@@ -67,4 +80,4 @@ class GameLoop {
     });
 }
 
-export { GameLoop, GAME_FINISHED_EVENT };
+export { Game, GAME_FINISHED_EVENT };

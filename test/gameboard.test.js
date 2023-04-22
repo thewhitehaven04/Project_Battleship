@@ -102,3 +102,17 @@ it('Missing hits do not contain hits on ships', () => {
   expect(missedHits).toContainEqual({ x: 3, y: 3 });
   expect(missedHits).toContainEqual({ x: 4, y: 4 });
 })
+
+it('Ship placement coordinate mapping', () => {
+  const gb = new Gameboard(5, new PubSub());
+  gb.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  expect(gb.board[1][1].ship && gb.board[2][1].ship).toBeTruthy();
+})
+
+it('Ship placement adjacent to top-left edge', () => {
+  const gb = new Gameboard(5, new PubSub());
+  gb.placeShip({ x: 0, y: 0 }, createDestroyer);
+  
+  expect(gb.board[0][0].ship && gb.board[1][0].ship).toBeTruthy();
+})

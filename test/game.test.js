@@ -1,4 +1,4 @@
-import { GAME_FINISHED_EVENT, GameLoop } from '../src/service/game';
+import { GAME_FINISHED_EVENT, Game } from '../src/service/game';
 import {
   ALL_SHIPS_DESTROYED_EVENT,
   Gameboard,
@@ -19,7 +19,7 @@ it('Players moves alternate', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
 
   const firstPlayer = loop.nextTurn();
   firstPlayer.performMove({ x: 1, y: 1 });
@@ -49,7 +49,7 @@ it('Do not alternate players until a move is performed by the last player', () =
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
 
   const firstPlayer = loop.nextTurn();
   const secondPlayer = loop.nextTurn();
@@ -68,7 +68,7 @@ it('First player', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
   expect(Object.is(loop.nextTurn(), playerJim)).toBeTruthy();
 });
 
@@ -84,7 +84,7 @@ it('Move processing integration', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
   loop.nextTurn().performMove({ x: 3, y: 3 });
 
   expect(gbHarry.getMissedHits()).toContainEqual({ x: 3, y: 3 });
@@ -102,7 +102,7 @@ it('Successive hits from the same player are not allowed', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
   const player = loop.nextTurn();
   player.performMove({ x: 4, y: 4 });
   player.performMove({ x: 3, y: 4 });
@@ -125,7 +125,7 @@ it('AllShipsDestroyed event is produced when all ships are destroyed', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
   loop.nextTurn().performMove({ x: 2, y: 2 });
   loop.nextTurn().performMove({ x: 1, y: 1 });
   loop.nextTurn().performMove({ x: 3, y: 2 });
@@ -149,7 +149,7 @@ it('GameFinished event is produced when all ships are destroyed', () => {
   const gbHarry = new Gameboard(5, ps);
   gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
 
-  const loop = new GameLoop([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
   loop.nextTurn().performMove({ x: 2, y: 2 });
   loop.nextTurn().performMove({ x: 1, y: 1 });
   loop.nextTurn().performMove({ x: 3, y: 2 });
@@ -158,3 +158,21 @@ it('GameFinished event is produced when all ships are destroyed', () => {
     winner: playerJim.toJSON(),
   });
 });
+
+it("Get missed hits by player", () => {
+  const ps = new PubSub();
+
+  const playerJim = new Player('Jim', ps);
+  const playerHarry = new Player('Harry', ps);
+
+  const gbJim = new Gameboard(5, ps);
+  gbJim.placeShip({ x: 1, y: 1 }, createDestroyer);
+
+  const gbHarry = new Gameboard(5, ps);
+  gbHarry.placeShip({ x: 2, y: 2 }, createDestroyer);
+
+  const loop = new Game([playerJim, playerHarry], [gbJim, gbHarry], ps);
+  loop.nextTurn().performMove({ x: 4, y: 4 });
+
+  expect(loop.getMissedHitsForPlayer(playerJim)).toEqual(gbHarry.getMissedHits());
+})

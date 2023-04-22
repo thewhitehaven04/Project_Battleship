@@ -37,6 +37,7 @@ class Gameboard {
   constructor(size, pubSub) {
     this.#pubSub = pubSub;
     this.#ships = [];
+    this.size = size;
 
     /** @type Array<Array<BoardCell>> */
     this.board = Array(size);
@@ -78,7 +79,7 @@ class Gameboard {
     const ship = shipFactory();
     const errorMsg =
       'This ship cannot be placed in this way as it instersects with previously placed ships';
-    if (x > 0 && y > 0) {
+    if (x >= 0 && y >= 0) {
       if (!vertical && x + ship.length - 1 < this.board.length) {
         if (
           this.#hasIntersectionWithOtherShips(
@@ -119,9 +120,7 @@ class Gameboard {
       this.#pubSub.notify(ALL_SHIPS_DESTROYED_EVENT, this.toJSON());
   }
 
-  /**
-   * @returns {Array<BoardCoordinates>}
-   */
+  /** @returns {Array<BoardCoordinates>} */
   getMissedHits() {
     /** @type {Array<BoardCoordinates>} */
     const missedHits = [];
@@ -135,9 +134,7 @@ class Gameboard {
     return missedHits;
   }
 
-  /**
-   * @returns {GameboardDto}
-   */
+  /** @returns {GameboardDto} */
   toJSON() {
     return {
       board: this.board,
