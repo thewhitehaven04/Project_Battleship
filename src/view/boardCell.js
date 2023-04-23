@@ -13,6 +13,7 @@ library.add(far);
  */
 const boardCellFactory = function (boardCell) {
   const div = document.createElement('div');
+  div.classList.add('board-cell');
 
   /**
    * @param {import('../service/gameboard').BoardCellDto} boardCell
