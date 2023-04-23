@@ -3,7 +3,7 @@ import { Ship } from './ship';
 
 /**
  * @typedef {Object} GameboardDto
- * @property {Array<Array<BoardCell>>} board
+ * @property {Array<Array<BoardCellDto>>} board
  */
 
 /**
@@ -19,10 +19,17 @@ import { Ship } from './ship';
  */
 
 /**
- * @typedef {GameboardDto} AllShipsDestroyedEvent 
+ * @typedef {Object} BoardCellDto
+ * @property {import('./ship').ShipDto} ship
+ * @property {Boolean} isHit
+ */
+
+/**
+ * @typedef {GameboardDto} AllShipsDestroyedEvent
  */
 
 const ALL_SHIPS_DESTROYED_EVENT = 'AllShipsDestroyed';
+// const SHIP_PLACED_EVENT = 'ShipPlacedEvent';
 
 class Gameboard {
   /** @type {PubSub} */
@@ -137,7 +144,12 @@ class Gameboard {
   /** @returns {GameboardDto} */
   toJSON() {
     return {
-      board: this.board,
+      board: this.board.map((boardArr) =>
+        boardArr.map((value) => {
+          ship: value.ship?.toJSON();
+          isHit: value.isHit;
+        }),
+      ),
     };
   }
 }
