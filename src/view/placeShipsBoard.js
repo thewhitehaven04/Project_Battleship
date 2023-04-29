@@ -1,3 +1,5 @@
+import { BoardController } from '../controller/boardController';
+import { Gameboard } from '../service/gameboard';
 import { ShipType } from '../service/ship';
 import { boardCellFactory } from './boardCell';
 
@@ -10,95 +12,110 @@ shipTypeMapping
   .set(ShipType.SUB, 'submarine');
 
 /**
- * @param {import("../service/gameboard").GameboardDto} initialValue
- * @param {function({ship: ShipType, coordinates: import('../service/gameboard').BoardCoordinates}): void} shipPlacementHandler
- * @returns {UpdatableView<import("../service/gameboard").GameboardDto>}
+ * @typedef {Object} ShipPlacementRequest
+ * @property {import('./../service/ship.js').ShipDto} ship
+ * @property {Array<Array<import('../service/gameboard').BoardCellDto>>} boardState
  */
-const placeShipsBoardViewFactory = function (
-  initialValue,
-  shipPlacementHandler,
-) {
+
+/**
+ * @typedef {Object} ShipPlacementCommand
+ * @property {import('./../service/ship.js').ShipDto} ship
+ * @property {import('../service/gameboard').BoardCoordinates} coordinates
+ */
+
+/**
+ * @typedef BoardViewMapping
+ * @property {import('../service/gameboard').BoardCellDto} data
+ * @property {UpdatableView<import('../service/gameboard').BoardCellDto>} element
+ */
+
+class PlaceShipsBoardView {
+  #state;
+  #root;
+  #spanShipBeingSelected;
+  #cellsMap;
+  #currentListener;
+
   /**
-   * @typedef BoardViewMapping
-   * @property {import('../service/gameboard').BoardCellDto} data
-   * @property {UpdatableView<import('../service/gameboard').BoardCellDto>} element
+   * @param {Gameboard} model
+   * @param {BoardController} controller
+   * @param {ShipPlacementRequest} viewState
    */
+  constructor(model, controller, viewState) {
+    this.model = model;
+    this.controller = controller;
+    this.#state = viewState;
 
-  const frag = document.createDocumentFragment();
-  /* contains reference to the currently active ship request listener function */
-  let currentListener;
+    this.#root = document.createElement('div');
+    this.#spanShipBeingSelected = document.createElement('span');
 
-  /** @type {Array<Array<BoardViewMapping>>} */
-  const cells = Array(initialValue.board.length).fill(undefined);
-  const div = document.createElement('div');
-  const spanShipBeingSelected = document.createElement('span');
-
-  /** fill the cells and store them in a two-dimensional array so that both their
-   * data and dom elements can be found by their indices and vice-versa */
-  for (let i = 0; i < initialValue.board.length; i++) {
-    for (let j = 0; j < initialValue.board[i].length; j++) {
-      cells[i][j] = {
-        data: initialValue.board[i][j],
-        element: boardCellFactory(initialValue.board[i][j]),
-      };
-      div.appendChild(cells[i][j].element.render());
+    /** @type {BoardViewMapping[][]} */
+    this.#cellsMap = Array(this.#state.boardState.length).fill(undefined);
+    /** fill the cells and store them in a two-dimensional array so that both their
+     * data and dom elements can be found by their indices and vice-versa */
+    for (let i = 0; i < this.#state.boardState.length; i++) {
+      for (let j = 0; j < this.#state.boardState[i].length; j++) {
+        this.#cellsMap[i][j] = {
+          data: this.#state.boardState[i][j],
+          element: boardCellFactory(this.#state.boardState[i][j]),
+        };
+      }
     }
+    this.#currentListener = null;
   }
+
+  /**
+   * @param {import('../service/ship').ShipDto} ship
+   * @param {Node} node
+   */
+  placeShipEventListener = (ship, node) => {
+    this.controller.handlePlacement({
+      ship: ship,
+      coordinates: this.#getCoordinatesByCell(node),
+    });
+  };
 
   /**
    * @param {Node} boardCell
    * @return {import('../service/gameboard').BoardCoordinates}
    */
-  const _getCoordinatesByCell = (boardCell) => {
-    for (let i = 0; i < cells.length; i++) {
-      for (let j = 0; j < cells[i].length; j++) {
-        return cells[i][j].element.render() === boardCell
-          ? { x: i, y: j }
-          : { x: -1, y: -1 };
+  #getCoordinatesByCell(boardCell) {
+    for (let i = 0; i < this.#cellsMap.length; i++) {
+      for (let j = 0; j < this.#cellsMap[i].length; j++) {
+        if (this.#cellsMap[i][j].element.render() === boardCell)
+          return { x: i, y: j };
       }
     }
-  };
+    return { x: -1, y: -1 };
+  }
 
-  const render = function () {
-    return frag;
-  };
-  /**
-   * @param {import('../service/gameboard').GameboardDto} gameboardDto
-   */
-  const update = function (gameboardDto) {
-    for (let i = 0; i < gameboardDto.board.length; i++) {
-      for (let j = 0; j < gameboardDto.board[i].length; j++) {
-        let data = gameboardDto[i][j];
-      }
-    }
-  };
-  /**
-   * @param {import('../service/ship').ShipDto} shipTypeRequest
-   */
-  const requestShipCoordinates = function (shipTypeRequest) {
-    spanShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
-      shipTypeRequest.type,
-    )}`;
-    div.removeEventListener('click', currentListener);
-
-    currentListener = (event) => {
-      if (event.target.matches('.board-cell')) {
-        const coordinates = _getCoordinatesByCell(event.target);
-        shipPlacementHandler({
-          ship: shipTypeRequest.type,
-          coordinates: coordinates,
-        });
+  /** @param {import('../service/ship').ShipDto} ship */
+  #requestShipCoordinates(ship) {
+    this.#currentListener = (event) => {
+      if (event.target.matches('boardCell')) {
+        this.placeShipEventListener(ship, event.target);
       }
     };
+    this.#spanShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
+      ship.type,
+    )}`;
+  }
 
-    div.addEventListener('click', currentListener);
-  };
+  render() {
+    return this.#root;
+  }
 
-  return {
-    render,
-    update,
-    requestShipCoordinates,
-  };
-};
+  /** @param {ShipPlacementRequest} shipPlacementRequest */
+  update(shipPlacementRequest) {
+    const bs = shipPlacementRequest.boardState;
+    for (let i = 0; i < bs.length; i++) {
+      for (let j = 0; j < bs[i].length; j++) {
+        this.#cellsMap[i][j] = shipPlacementRequest.boardState[i][j];
+      }
+    }
 
-export { placeShipsBoardViewFactory };
+    this.#requestShipCoordinates(shipPlacementRequest.shipType);
+  }
+}
+
+export { PlaceShipsBoardView };

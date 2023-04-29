@@ -1,34 +1,35 @@
+
 /**
  * @readonly
- * @enum {String}
+ * @enum {ShipDto}
  */
 const ShipType = Object.freeze({
-  CARRIER: 'carrier',
-  SUB: 'submarine',
-  CRUISER: 'cruiser',
-  DESTROYER: 'destroyer',
-  BATTLESHIP: 'battleship',
+  CARRIER: { type: 'carrier', length: 5 },
+  SUB: { type: 'submarine', length: 4 },
+  CRUISER: { type: 'cruiser', length: 3 },
+  DESTROYER: { type: 'destroyer', length: 2 },
+  BATTLESHIP: { type: 'battleship', length: 4 },
 });
 
 /**
  * @typedef {Object} ShipDto
- * @property {ShipType} type
- * @property {Number} length 
- * @property {Boolean} isSunk 
+ * @property {String} type
+ * @property {Number} length
+ * @property {Boolean} [isSunk]
  */
 
 class Ship {
   /**
    * Construct a new `Ship` instance.
+   * @param {String} type ship type
    * @param {Number} length ship length
-   * @param {ShipType} type ship type
    */
-  constructor(length, type) {
+  constructor(type, length) {
     if (!Number.isInteger(length) && length >= 1)
       throw new RangeError('Ship length must be a positive integer number');
+    this.type = type;
     this.length = length;
     this.hits = 0;
-    this.type = type;
   }
 
   hit() {
@@ -38,7 +39,6 @@ class Ship {
   isSunk() {
     return this.hits >= this.length;
   }
-
 
   /**
    * @returns {ShipDto}
@@ -52,18 +52,11 @@ class Ship {
   }
 }
 
-const createCarrier = () => new Ship(5, ShipType.CARRIER);
-const createBattleship = () => new Ship(4, ShipType.BATTLESHIP);
-const createSubmarine = () => new Ship(3, ShipType.SUB);
-const createCruiser = () => new Ship(3, ShipType.CRUISER);
-const createDestroyer = () => new Ship(2, ShipType.DESTROYER);
+/**
+ * @module
+ * @exports ShipDto
+ * @exports Ship
+ * @exports ShipType
+ */
 
-export {
-  Ship,
-  ShipType,
-  createBattleship,
-  createCarrier,
-  createCruiser,
-  createDestroyer,
-  createSubmarine,
-};
+export { Ship, ShipType };

@@ -3,7 +3,7 @@ import { GAME_FINISHED_EVENT, Game } from '../src/service/game';
 import { ALL_SHIPS_DESTROYED_EVENT, Gameboard } from '../src/service/gameboard';
 import { moveProvider } from '../src/service/moveProvider';
 import { PLAYER_MOVE_EVENT, Player } from '../src/service/player';
-import { createBattleship, createCarrier, createDestroyer } from '../src/service/ship';
+import { Ship, ShipType } from '../src/service/ship';
 import { PubSub } from '../src/utils/eventBus';
 
 it('Player misses by AI ships', () => {
@@ -12,11 +12,13 @@ it('Player misses by AI ships', () => {
   const player = new Player('Nate', ps);
   const computer = new Player('Computer', ps);
 
+  const {type, length} = ShipType.DESTROYER
+
   const boardPlayer = new Gameboard(4, ps);
-  boardPlayer.placeShip({ x: 1, y: 1 }, createDestroyer);
+  boardPlayer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const boardComputer = new Gameboard(4, ps);
-  boardComputer.placeShip({ x: 1, y: 1 }, createDestroyer);
+  boardComputer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const game = new Game([computer, player], [boardComputer, boardPlayer], ps);
   const aiGame = new AiGameLoop(game, computer, moveProvider(), ps);
@@ -32,11 +34,12 @@ it('Player wins by destroying all AI ships', () => {
   const player = new Player('Nate', ps);
   const computer = new Player('Computer', ps);
 
+  const { type, length } = ShipType.DESTROYER;
   const boardPlayer = new Gameboard(4, ps);
-  boardPlayer.placeShip({ x: 1, y: 1 }, createDestroyer);
+  boardPlayer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const boardComputer = new Gameboard(4, ps);
-  boardComputer.placeShip({ x: 1, y: 1 }, createDestroyer);
+  boardComputer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const game = new Game([computer, player], [boardComputer, boardPlayer], ps);
   const aiGame = new AiGameLoop(game, computer, moveProvider(), ps);
@@ -56,11 +59,12 @@ it('Player winning causes emitting of GameFinishedEvent', () => {
   const player = new Player('Nate', ps);
   const computer = new Player('Computer', ps);
 
+  const {type, length} = ShipType.DESTROYER
   const boardPlayer = new Gameboard(4, ps);
-  boardPlayer.placeShip({ x: 1, y: 1 }, createDestroyer);
+  boardPlayer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const boardComputer = new Gameboard(4, ps);
-  boardComputer.placeShip({ x: 1, y: 1 }, createDestroyer);
+  boardComputer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const game = new Game([computer, player], [boardComputer, boardPlayer], ps);
   const aiGame = new AiGameLoop(game, computer, moveProvider(), ps);
@@ -79,11 +83,12 @@ it("AI eventually destroys all of player's ships", () => {
   const player = new Player('Nate', ps);
   const computer = new Player('Computer', ps);
 
+  const { type, length } = ShipType.BATTLESHIP;
   const boardPlayer = new Gameboard(6, ps);
-  boardPlayer.placeShip({ x: 1, y: 1 }, createBattleship);
+  boardPlayer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const boardComputer = new Gameboard(6, ps);
-  boardComputer.placeShip({ x: 1, y: 1 }, createBattleship);
+  boardComputer.placeShip({ x: 1, y: 1 }, () => new Ship(type, length));
 
   const moveProviderInstance = moveProvider();
   const game = new Game([computer, player], [boardComputer, boardPlayer], ps);

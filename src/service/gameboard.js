@@ -29,7 +29,6 @@ import { Ship } from './ship';
  */
 
 const ALL_SHIPS_DESTROYED_EVENT = 'AllShipsDestroyed';
-// const SHIP_PLACED_EVENT = 'ShipPlacedEvent';
 
 class Gameboard {
   /** @type {PubSub} */
@@ -46,6 +45,7 @@ class Gameboard {
     this.#ships = [];
     this.size = size;
 
+    // TODO: replace with a model that is passed everywhere
     /** @type Array<Array<BoardCell>> */
     this.board = Array(size);
 

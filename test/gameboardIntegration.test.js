@@ -1,6 +1,6 @@
 import { PubSub } from "../src/utils/eventBus";
 import { ALL_SHIPS_DESTROYED_EVENT, Gameboard } from "../src/service/gameboard";
-import { createDestroyer, createCruiser } from "../src/service/ship";
+import { Ship, ShipType } from "../src/service/ship";
 
 
 it('AllShipsDestroyedEvent is sent upon destruction of all ships', () => {
@@ -8,8 +8,8 @@ it('AllShipsDestroyedEvent is sent upon destruction of all ships', () => {
   const notifySpyOn = jest.spyOn(ps, 'notify');
   const gb = new Gameboard(5, ps);
 
-  gb.placeShip({ x: 1, y: 1 }, createCruiser);
-  gb.placeShip({ x: 1, y: 2 }, createDestroyer);
+  gb.placeShip({ x: 1, y: 1 }, () => new Ship(ShipType.CRUISER.type, ShipType.CRUISER.length));
+  gb.placeShip({ x: 1, y: 2 }, () => new Ship(ShipType.DESTROYER.type, ShipType.DESTROYER.length));
 
   gb.receiveAttack({ x: 1, y: 1 });
   gb.receiveAttack({ x: 2, y: 1 });

@@ -1,10 +1,8 @@
-import { MainViewFactory } from './view/main';
+import { PubSub } from './utils/eventBus';
 
 const app = {
-  run: () => {
-    const body = document.querySelector('body');
-    body?.appendChild(MainViewFactory().render());
-  },
+  appRoot: document.querySelector('body'),
+  eventBus: new PubSub(),
 };
 
 app.run();
