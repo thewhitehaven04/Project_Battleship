@@ -13,7 +13,7 @@ shipTypeMapping
 
 /**
  * @typedef {Object} ShipPlacementRequest
- * @property {import('./../service/ship.js').ShipDto} ship
+ * @property {?import('./../service/ship.js').ShipDto} ship
  * @property {Array<Array<import('../service/gameboard').BoardCellDto>>} boardState
  */
 
@@ -29,6 +29,9 @@ shipTypeMapping
  * @property {UpdatableView<import('../service/gameboard').BoardCellDto>} element
  */
 
+/**
+ * @implements {UpdatableView<ShipPlacementRequest>}
+ */
 class PlaceShipsBoardView {
   #state;
   #root;
@@ -37,20 +40,16 @@ class PlaceShipsBoardView {
   #currentListener;
 
   /**
-   * @param {Gameboard} model
-   * @param {BoardController} controller
    * @param {ShipPlacementRequest} viewState
    */
-  constructor(model, controller, viewState) {
-    this.model = model;
-    this.controller = controller;
+  constructor(viewState) {
     this.#state = viewState;
 
     this.#root = document.createElement('div');
     this.#spanShipBeingSelected = document.createElement('span');
 
     /** @type {BoardViewMapping[][]} */
-    this.#cellsMap = Array(this.#state.boardState.length).fill(undefined);
+    this.#cellsMap = Array(this.#state.boardState?.length).fill(undefined);
     /** fill the cells and store them in a two-dimensional array so that both their
      * data and dom elements can be found by their indices and vice-versa */
     for (let i = 0; i < this.#state.boardState.length; i++) {
@@ -65,14 +64,11 @@ class PlaceShipsBoardView {
   }
 
   /**
-   * @param {import('../service/ship').ShipDto} ship
-   * @param {Node} node
+   * @param {function(ShipPlacementCommand): void} handler
+   * @param {ShipPlacementCommand} command 
    */
-  placeShipEventListener = (ship, node) => {
-    this.controller.handlePlacement({
-      ship: ship,
-      coordinates: this.#getCoordinatesByCell(node),
-    });
+  handlePlacement = (handler, command) => {
+    handler(command);
   };
 
   /**
@@ -93,7 +89,10 @@ class PlaceShipsBoardView {
   #requestShipCoordinates(ship) {
     this.#currentListener = (event) => {
       if (event.target.matches('boardCell')) {
-        this.placeShipEventListener(ship, event.target);
+        this.handlePlacement({
+          ship: ship,
+          coordinates: this.#getCoordinatesByCell(node),
+        }) 
       }
     };
     this.#spanShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
@@ -106,15 +105,15 @@ class PlaceShipsBoardView {
   }
 
   /** @param {ShipPlacementRequest} shipPlacementRequest */
-  update(shipPlacementRequest) {
-    const bs = shipPlacementRequest.boardState;
-    for (let i = 0; i < bs.length; i++) {
-      for (let j = 0; j < bs[i].length; j++) {
-        this.#cellsMap[i][j] = shipPlacementRequest.boardState[i][j];
+  update({ ship, boardState }) {
+    if (boardState)
+      for (let i = 0; i < boardState.length ?? 0; i++) {
+        for (let j = 0; j < boardState[i].length; j++) {
+          this.#cellsMap[i][j] = boardState[i][j];
+        }
       }
-    }
 
-    this.#requestShipCoordinates(shipPlacementRequest.shipType);
+    if (ship) this.#requestShipCoordinates(ship);
   }
 }
 

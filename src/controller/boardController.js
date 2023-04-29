@@ -1,27 +1,36 @@
+import { getFlow } from '../service/gameStartFlow';
 import { Gameboard } from '../service/gameboard';
-import { Ship } from '../service/ship';
-import { PubSub } from '../utils/eventBus';
+import { Ship, ShipType } from '../service/ship';
+import { PlaceShipsBoardView } from '../view/placeShipsBoard';
 
-class BoardController {
-  #pubSub;
+class PlaceBoardController {
 
   /**
    * @param {Gameboard} model
-   * @param {PubSub} pubSub
+   * @param {PlaceShipsBoardView} view
+   * @param {Generator<Object<String, ShipType>>} requestGenerator;
    */
-  constructor(model, pubSub) {
+  constructor(model, view, requestGenerator) {
     this.model = model;
-    this.#pubSub = pubSub;
+    this.view = view;
+    this.shipRequestGenerator = requestGenerator;
+    this.view.handlePlacement = this.view.handlePlacement.bind(this, this.handlePlacement);
   }
 
-  /** @param {import("../view/placeShipsBoard").ShipPlacementCommand} placementCommand */
+  /**
+   * @param {import("../view/placeShipsBoard").ShipPlacementCommand} placementCommand
+   */
   handlePlacement(placementCommand) {
     const { type, length } = placementCommand.ship;
     this.model.placeShip(
       placementCommand.coordinates,
-      () => new Ship(length, type),
+      () => new Ship(type, length),
     );
+    this.view.update({
+      ship: this.shipRequestGenerator.next().value,
+      boardState: this.model.toJSON().board,
+    });
   }
 }
 
-export { BoardController };
+export { PlaceBoardController };
