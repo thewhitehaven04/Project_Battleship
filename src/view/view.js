@@ -1,11 +1,7 @@
 /**
- * @module
- */
-
-/**
  * @interface
  * @typedef View
- * @property {function(): Node} render
+ * @property {function(): HTMLElement} render
  */
 
 /**
@@ -22,6 +18,7 @@
  */
 
 /** 
+ * @module
  * @exports View
  * @exports Updatable<T> 
  * @exports UpdatableView<T> 

@@ -142,7 +142,7 @@ class Gameboard {
   }
 
   /** @returns {GameboardDto} */
-  toJSON() {
+  toJSON = () => {
     return {
       board: this.board.map((boardArr) =>
         boardArr.map((value) => {

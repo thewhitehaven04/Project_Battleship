@@ -1,0 +1,16 @@
+.board__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: max-content;
+}
+
+.place-ships-board__centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ship-contour__highlighted {
+  background-color: rgba(0, 255, 0, 0.4);
+}

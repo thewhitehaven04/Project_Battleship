@@ -11,7 +11,6 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Project Battleship',
-      template: './src/index.html',
     }),
   ],
   devServer: {
@@ -21,6 +20,7 @@ module.exports = {
     compress: true,
     port: 9000,
   },
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {

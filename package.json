@@ -2,7 +2,7 @@
   "name": "project_battleship",
   "version": "1.0.0",
   "description": "This project is a part of The Odin Project's curriculum with the goal of exercising TDD skills.",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test watch": "jest --watch *.js",
@@ -26,9 +26,11 @@
     "webpack-dev-server": "^4.13.3"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "fontawesome-free": "^1.0.4",
     "uuid": "^9.0.0"
   }
 }

@@ -7,37 +7,41 @@ import { moveProvider } from './service/moveProvider';
 import { Player } from './service/player';
 import { ShipType } from './service/ship';
 import { PubSub } from './utils/eventBus';
-import { PlaceShipsBoardView } from './view/placeShipsBoard';
+import { PlaceShipsBoardView } from './view/placeShips/placeShipsBoard';
+import style from './style.css';
 
 const app = function () {
   const appRoot = document.querySelector('body');
   const eventBus = new PubSub();
-  let gameBoard;
-  let boardController;
+  let playerGameBoard;
+  let playerBoardController;
 
   const newGame = () => {
-    const playerGameboard = new Gameboard(7, eventBus);
+    playerGameBoard = new Gameboard(7, eventBus);
     const gf = getFlow(ShipType);
 
-    const initScreen = new PlaceShipsBoardView({
+    const startNewGameScreen = new PlaceShipsBoardView({
       ship: gf.next().value,
-      boardState: gameBoard.toJSON().board,
+      boardState: playerGameBoard.toJSON().board,
     });
-    boardController = new PlaceBoardController(gameBoard, initScreen, gf);
+    playerBoardController = new PlaceBoardController(
+      playerGameBoard,
+      startNewGameScreen,
+      gf,
+    );
 
-    appRoot?.append(initScreen.render());
+    appRoot?.append(startNewGameScreen.render());
 
     const mockPlayer = new Player('Mikhail', eventBus);
-    const aiPlayer = new Player('Computer', eventBus);
-    const aiGameBoard = new Gameboard(7, eventBus);
-
-    const game = new Game(
-      [mockPlayer, aiPlayer],
-      [playerGameboard, aiGameBoard],
-      eventBus,
-    );
-    const mover = moveProvider();
-    const aiGame = new AiGameLoop(game, aiPlayer, mover, eventBus);
+    // const aiPlayer = new Player('Computer', eventBus);
+    // const aiGameBoard = new Gameboard(7, eventBus);
+    // const game = new Game(
+    //   [mockPlayer, aiPlayer],
+    //   [playerGameboard, aiGameBoard],
+    //   eventBus,
+    // );
+    // const mover = moveProvider();
+    // const aiGame = new AiGameLoop(game, aiPlayer, mover, eventBus);
   };
 
   return {
@@ -45,4 +49,4 @@ const app = function () {
   };
 };
 
-app().startNewGame();
+app().newGame();

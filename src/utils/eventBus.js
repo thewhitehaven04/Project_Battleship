@@ -26,6 +26,7 @@ export class PubSub {
    * @param {any} data
    */
   notify(event, data) {
-    this.events.get(event)?.forEach((cb) => cb(data));
+    const cbs = this.events.get(event);
+    if (cbs && cbs.length > 0) cbs?.forEach(cb => cb(data))
   }
 }
