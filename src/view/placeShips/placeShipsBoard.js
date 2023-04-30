@@ -43,6 +43,7 @@ class PlaceShipsBoardView {
   #mouseEnterListener;
   #mouseLeaveListener;
   #horizontalPlacementToggle;
+  #horizontal;
 
   /**
    * @param {ShipPlacementRequest} viewState
@@ -54,6 +55,7 @@ class PlaceShipsBoardView {
     this.#boardContainer = document.createElement('div');
     this.#spanShipBeingSelected = document.createElement('span');
     this.#horizontalPlacementToggle = document.createElement('input');
+    this.#horizontal = this.#horizontalPlacementToggle.value === 'on';
 
     this.#cellsMap = Array(this.#state.boardState?.length).fill([]);
     /** fill the cells and store them in a two-dimensional array so that both their
@@ -100,6 +102,17 @@ class PlaceShipsBoardView {
     });
   }
 
+  /** @param {import('../../service/gameboard').BoardCoordinates[]} cells */
+  #removeHighlightCells(cells) {
+    const hightlightClass = 'ship-contour__highlighted';
+    cells.forEach((cell) => {
+      const renderedCell = this.#cellsMap[cell.x][cell.y].element.render();
+      if (renderedCell.classList.contains(hightlightClass)) {
+        renderedCell.classList.remove(hightlightClass);
+      }
+    });
+  }
+
   /**
    * @param {import('../../service/gameboard').BoardCoordinates} coordinates
    * @param {Number} size
@@ -135,6 +148,10 @@ class PlaceShipsBoardView {
       'mouseenter',
       this.#mouseEnterListener,
     );
+    this.#boardContainer.removeEventListener(
+      'mouseleave',
+      this.#mouseLeaveListener,
+    );
 
     this.#currentListener = (event) => {
       const closest = event.target.closest('.board-cell');
@@ -146,7 +163,7 @@ class PlaceShipsBoardView {
       }
     };
     this.#mouseEnterListener = (event) => {
-      const matches = event.target('.board-cell');
+      const matches = event.target.matches('.board-cell');
       if (matches) {
         const closest = event.target.closest('.board-cell');
         const line = this.#getLineOfCells(
@@ -157,9 +174,28 @@ class PlaceShipsBoardView {
         this.#highlightCells(line);
       }
     };
+    this.#mouseLeaveListener = (event) => {
+      const matches = event.target.matches('.board-cell');
+      if (matches) {
+        const closest = event.target.closest('.board-cell');
+        const line = this.#getLineOfCells(
+          this.#getCoordinatesByCell(closest),
+          ship.length,
+          true,
+        );
+        this.#removeHighlightCells(line);
+      }
+    };
 
     this.#boardContainer.addEventListener('click', this.#currentListener);
-    this.#boardContainer.addEventListener('mouseover', this.#mouseEnterListener);
+    this.#boardContainer.addEventListener(
+      'mouseover',
+      this.#mouseEnterListener,
+    );
+    this.#boardContainer.addEventListener(
+      'mouseleave',
+      this.#mouseLeaveListener,
+    );
 
     this.#spanShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
       ship.type,
@@ -178,6 +214,14 @@ class PlaceShipsBoardView {
     );
 
     this.#horizontalPlacementToggle.type = 'checkbox';
+    this.#horizontalPlacementToggle.id = 'horizontal';
+
+    const horizontalLabel = document.createElement('label');
+    horizontalLabel.setAttribute('for', 'horizontal');
+
+    this.#horizontalPlacementToggle.addEventListener('toggle', () => {
+      this.#horizontal = this.#horizontalPlacementToggle.value === 'on';
+    });
 
     this.#root.append(
       this.#spanShipBeingSelected,
