@@ -139,3 +139,16 @@ it('Ship placement adjacent to top-left edge', () => {
 
   expect(gb.board[0][0].ship && gb.board[1][0].ship).toBeTruthy();
 });
+
+
+it('Placed ships are visible from toJSON', () => {
+  const gb = new Gameboard(5, new PubSub());
+  const { type, length } = ShipType.DESTROYER;
+  gb.placeShip({ x: 0, y: 0 }, () => new Ship(type, length));
+
+  expect(gb.toJSON().board[0][0].ship).toBeTruthy();
+  expect(gb.toJSON().board[0][0].isHit).toBeFalsy();
+
+  expect(gb.toJSON().board[1][0].ship).toBeTruthy();
+  expect(gb.toJSON().board[1][0].isHit).toBeFalsy();
+});

@@ -24,11 +24,10 @@ import { Ship } from './ship';
  * @property {Boolean} isHit
  */
 
-/**
- * @typedef {GameboardDto} AllShipsDestroyedEvent
- */
+/** @typedef {GameboardDto} AllShipsDestroyedEvent */
 
 const ALL_SHIPS_DESTROYED_EVENT = 'AllShipsDestroyed';
+const SHIP_PLACED_EVENT = 'SHIP_PLACED_EVENT';
 
 class Gameboard {
   /** @type {PubSub} */
@@ -142,12 +141,14 @@ class Gameboard {
   }
 
   /** @returns {GameboardDto} */
-  toJSON = () => {
+  toJSON() {
     return {
       board: this.board.map((boardArr) =>
         boardArr.map((value) => {
-          ship: value.ship?.toJSON();
-          isHit: value.isHit;
+          return {
+            ship: value.ship?.toJSON(),
+            isHit: value.isHit,
+          };
         }),
       ),
     };

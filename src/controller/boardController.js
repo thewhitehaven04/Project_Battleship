@@ -36,7 +36,7 @@ class PlaceBoardController {
         () => new Ship(type, length),
       );
     } catch (err) {
-      console.log(`Error: ${err}`);
+      console.error(`Error: ${err}`);
     }
     const next = this.shipRequestGenerator.next();
     if (!next.done)

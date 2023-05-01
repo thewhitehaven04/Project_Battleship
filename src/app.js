@@ -17,7 +17,7 @@ const app = function () {
   let playerBoardController;
 
   const newGame = () => {
-    playerGameBoard = new Gameboard(7, eventBus);
+    playerGameBoard = new Gameboard(10, eventBus);
     const gf = getFlow(ShipType);
 
     const startNewGameScreen = new PlaceShipsBoardView({
@@ -28,6 +28,7 @@ const app = function () {
       playerGameBoard,
       startNewGameScreen,
       gf,
+      eventBus
     );
 
     appRoot?.append(startNewGameScreen.render());
