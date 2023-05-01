@@ -34,6 +34,7 @@ class PlaceBoardController {
       this.model.placeShip(
         placementCommand.coordinates,
         () => new Ship(type, length),
+        placementCommand.vertical,
       );
     } catch (err) {
       console.error(`Error: ${err}`);

@@ -28,6 +28,9 @@ class BoardCellView {
   /** @param {import('../../service/gameboard').BoardCellDto} boardCell */
   constructor(boardCell) {
     this.#root = document.createElement('div');
+    this.#root.classList.add('board-cell');
+    this.#root.appendChild(this.#getIcon(this.#boardCellData));
+    
     this.#boardCellData = boardCell;
   }
 
@@ -43,8 +46,6 @@ class BoardCellView {
   }
 
   render() {
-    this.#root.classList.add('board-cell');
-    this.#root.replaceChildren(this.#getIcon(this.#boardCellData));
     return this.#root;
   }
 

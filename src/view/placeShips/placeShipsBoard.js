@@ -1,5 +1,5 @@
 import { ShipType } from '../../service/ship';
-import { BoardCellView, boardCellFactory } from '../boardCell/boardCell';
+import { BoardCellView } from '../boardCell/boardCell';
 import style from './placeShips.css';
 
 const shipTypeMapping = new Map();
@@ -20,6 +20,7 @@ shipTypeMapping
  * @typedef {Object} ShipPlacementCommand
  * @property {import('../../service/ship.js').ShipDto} ship
  * @property {import('../../service/gameboard').BoardCoordinates} coordinates
+ * @property {Boolean} vertical
  */
 
 /**
@@ -41,7 +42,7 @@ class PlaceShipsBoardView {
   #cellsMap;
   #currentListener;
   #mouseEnterListener;
-  #horizontalPlacementToggle;
+  #verticalPlacementToggle;
 
   /**
    * @param {ShipPlacementRequest} viewState
@@ -52,19 +53,19 @@ class PlaceShipsBoardView {
     this.#root = document.createElement('div');
     this.#boardContainer = document.createElement('div');
     this.#spanShipBeingSelected = document.createElement('span');
-    this.#horizontalPlacementToggle = document.createElement('input');
+    this.#verticalPlacementToggle = document.createElement('input');
+    this.#cellsMap = Array(viewState.boardState.length).fill(Array(10));
 
-    this.#cellsMap = Array(this.#state.boardState?.length).fill([]);
     /** fill the cells and store them in a two-dimensional array so that both their
      * data and dom elements can be found by their indices and vice-versa */
-    this.#cellsMap = viewState.boardState.map((cellArray) =>
-      cellArray.map((cell) => {
-        return {
-          data: cell,
-          element: new BoardCellView(cell),
+    for (let i = 0; i < this.#cellsMap.length; i++) {
+      for (let j = 0; j < this.#cellsMap.length; j++) {
+        this.#cellsMap[i][j] = {
+          data: viewState.boardState[i][j],
+          element: new BoardCellView(viewState.boardState[i][j]),
         };
-      }),
-    );
+      }
+    }
     this.#currentListener = null;
     this.#mouseEnterListener = null;
     this.update(viewState);
@@ -79,10 +80,12 @@ class PlaceShipsBoardView {
    * @return {import('../../service/gameboard').BoardCoordinates}
    */
   #getCoordinatesByCell(boardCell) {
-    for (let i = 0; i < this.#cellsMap.length; i++) {
-      for (let j = 0; j < this.#cellsMap[i].length; j++) {
-        if (this.#cellsMap[i][j].element.render() === boardCell)
-          return { x: i, y: j };
+    const length = this.#cellsMap.length;
+    for (let i = 0; i < length; i++) {
+      for (let j = 0; j < length; j++) {
+        if (this.#cellsMap[i][j].element.render() === boardCell) {
+          return { x: j, y: i };
+        }
       }
     }
     return { x: -1, y: -1 };
@@ -111,22 +114,19 @@ class PlaceShipsBoardView {
   /**
    * @param {import('../../service/gameboard').BoardCoordinates} coordinates
    * @param {Number} size
-   * @param {Boolean} horizontal
+   * @param {Boolean} vertical
    * @return {BoardViewMapping[]}
    */
-  #getLineOfCells(coordinates, size, horizontal) {
+  #getLineOfCells(coordinates, size, vertical) {
     const { x, y } = coordinates;
+    const length = this.#cellsMap.length;
     const line = [];
-    if (horizontal) {
-      for (let i = 0; i < size; i++) {
-        if (x + i < this.#cellsMap.length && y < this.#cellsMap[x].length)
-          line.push(this.#cellsMap[x + i][y]);
-      }
+    if (vertical) {
+      for (let i = 0; i < size; i++)
+        if (x < length && y + i < length) line.push(this.#cellsMap[y + i][x]);
     } else {
-      for (let i = 0; i < size; i++) {
-        if (x < this.#cellsMap.length && y + i < this.#cellsMap[x].length)
-          line.push(this.#cellsMap[x][y + i]);
-      }
+      for (let i = 0; i < size; i++)
+        if (x + i < length && y < length) line.push(this.#cellsMap[y][x + i]);
     }
     return line;
   }
@@ -155,7 +155,7 @@ class PlaceShipsBoardView {
         const line = this.#getLineOfCells(
           this.#getCoordinatesByCell(closest),
           ship.length,
-          this.#horizontalPlacementToggle.checked,
+          this.#verticalPlacementToggle.checked,
         );
         this.#highlightCells(line);
         let toRemove = this.#cellsMap
@@ -182,26 +182,23 @@ class PlaceShipsBoardView {
       'board__grid',
       'place-ships-board__centered',
     );
-    this.#cellsMap.forEach((cellArr) =>
-      cellArr.forEach((cell) => {
-        this.#boardContainer.appendChild(cell.element.render());
-      }),
-    );
+    for (let i = 0; i < this.#cellsMap.length; i++) {
+      for (let j = 0; j < this.#cellsMap.length; j++) {
+        this.#boardContainer.appendChild(this.#cellsMap[i][j].element.render());
+      }
+    }
 
     const horizontalContainer = document.createElement('div');
 
-    this.#horizontalPlacementToggle.type = 'checkbox';
-    this.#horizontalPlacementToggle.id = 'horizontal';
-    this.#horizontalPlacementToggle.checked = true;
+    this.#verticalPlacementToggle.type = 'checkbox';
+    this.#verticalPlacementToggle.id = 'vertical';
+    this.#verticalPlacementToggle.checked = true;
 
-    const horizontalLabel = document.createElement('label');
-    horizontalLabel.setAttribute('for', 'horizontal');
-    horizontalLabel.textContent = 'Horizontal';
+    const verticalLabel = document.createElement('label');
+    verticalLabel.setAttribute('for', 'vertical');
+    verticalLabel.textContent = 'Vertical';
 
-    horizontalContainer.append(
-      this.#horizontalPlacementToggle,
-      horizontalLabel,
-    );
+    horizontalContainer.append(this.#verticalPlacementToggle, verticalLabel);
 
     this.#root.append(
       this.#spanShipBeingSelected,
@@ -215,14 +212,14 @@ class PlaceShipsBoardView {
   /** @param {ShipPlacementRequest} shipPlacementRequest */
   update({ ship, boardState }) {
     if (boardState)
-      this.#cellsMap.forEach((cellArr, i) =>
-        cellArr.forEach((cell, j) => {
-          if (boardState[i][j] !== cell.data) {
+      for (let i = 0; i < this.#cellsMap.length; i++) {
+        for (let j = 0; j < this.#cellsMap[i].length; j++) {
+          if (boardState[i][j] !== this.#cellsMap[i][j].data) {
             this.#cellsMap[i][j].data = boardState[i][j];
             this.#cellsMap[i][j].element.update(boardState[i][j]);
           }
-        }),
-      );
+        }
+      }
 
     if (ship) this.#requestShipCoordinates(ship);
   }
