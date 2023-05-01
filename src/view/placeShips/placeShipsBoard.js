@@ -54,11 +54,12 @@ class PlaceShipsBoardView {
     this.#boardContainer = document.createElement('div');
     this.#spanShipBeingSelected = document.createElement('span');
     this.#verticalPlacementToggle = document.createElement('input');
-    this.#cellsMap = Array(viewState.boardState.length).fill(Array(10));
+    this.#cellsMap = Array(viewState.boardState.length);
 
     /** fill the cells and store them in a two-dimensional array so that both their
      * data and dom elements can be found by their indices and vice-versa */
     for (let i = 0; i < this.#cellsMap.length; i++) {
+      this.#cellsMap[i] = Array(10);
       for (let j = 0; j < this.#cellsMap.length; j++) {
         this.#cellsMap[i][j] = {
           data: viewState.boardState[i][j],
@@ -182,11 +183,11 @@ class PlaceShipsBoardView {
       'board__grid',
       'place-ships-board__centered',
     );
-    for (let i = 0; i < this.#cellsMap.length; i++) {
-      for (let j = 0; j < this.#cellsMap.length; j++) {
-        this.#boardContainer.appendChild(this.#cellsMap[i][j].element.render());
-      }
-    }
+    this.#cellsMap.forEach((cellArr) =>
+      cellArr.forEach((cell) =>
+        this.#boardContainer.append(cell.element.render()),
+      ),
+    );
 
     const horizontalContainer = document.createElement('div');
 

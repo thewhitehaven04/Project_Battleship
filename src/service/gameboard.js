@@ -141,17 +141,17 @@ class Gameboard {
   }
 
   /** @returns {GameboardDto} */
-  toJSON() {
-    return {
-      board: this.board.map((boardArr) =>
-        boardArr.map((value) => {
-          return {
-            ship: value.ship?.toJSON(),
-            isHit: value.isHit,
-          };
-        }),
-      ),
-    };
+  toJSON = () => {
+    const board = Array(10);
+    for (let i = 0; i < this.board.length; i++) {
+      board[i] = Array(10);
+      for (let j = 0; j < this.board[i].length; j++)
+        board[i][j] = {
+          ship: this.board[i][j].ship?.toJSON() ?? null,
+          isHit: this.board[i][j].isHit,
+        };
+    }
+    return { board: board };
   }
 }
 
