@@ -54,19 +54,18 @@ class PlaceShipsBoardView {
     this.#boardContainer = document.createElement('div');
     this.#spanShipBeingSelected = document.createElement('span');
     this.#verticalPlacementToggle = document.createElement('input');
-    this.#cellsMap = Array(viewState.boardState.length);
+    this.#cellsMap = Array(viewState.boardState.length).fill(Array(undefined));
 
     /** fill the cells and store them in a two-dimensional array so that both their
      * data and dom elements can be found by their indices and vice-versa */
-    for (let i = 0; i < this.#cellsMap.length; i++) {
-      this.#cellsMap[i] = Array(10);
-      for (let j = 0; j < this.#cellsMap.length; j++) {
-        this.#cellsMap[i][j] = {
-          data: viewState.boardState[i][j],
-          element: new BoardCellView(viewState.boardState[i][j]),
+    this.#cellsMap = viewState.boardState.map((cellArr, i) => {
+      return cellArr.map((cell, j) => {
+        return {
+          data: cell,
+          element: new BoardCellView(cell),
         };
-      }
-    }
+      });
+    });
     this.#currentListener = null;
     this.#mouseEnterListener = null;
     this.update(viewState);
@@ -85,7 +84,7 @@ class PlaceShipsBoardView {
     for (let i = 0; i < length; i++) {
       for (let j = 0; j < length; j++) {
         if (this.#cellsMap[i][j].element.render() === boardCell) {
-          return { x: j, y: i };
+          return { x: i, y: j };
         }
       }
     }
@@ -122,12 +121,12 @@ class PlaceShipsBoardView {
     const { x, y } = coordinates;
     const length = this.#cellsMap.length;
     const line = [];
-    if (vertical) {
+    if (!vertical) {
       for (let i = 0; i < size; i++)
-        if (x < length && y + i < length) line.push(this.#cellsMap[y + i][x]);
+        if (x + i < length && y < length) line.push(this.#cellsMap[x + i][y]);
     } else {
       for (let i = 0; i < size; i++)
-        if (x + i < length && y < length) line.push(this.#cellsMap[y][x + i]);
+        if (x < length && y + i < length) line.push(this.#cellsMap[x][y + i]);
     }
     return line;
   }
@@ -146,6 +145,7 @@ class PlaceShipsBoardView {
         this.handlePlacement({
           ship: ship,
           coordinates: this.#getCoordinatesByCell(closest),
+          vertical: this.#verticalPlacementToggle.checked,
         });
       }
     };
@@ -183,13 +183,11 @@ class PlaceShipsBoardView {
       'board__grid',
       'place-ships-board__centered',
     );
-    this.#cellsMap.forEach((cellArr) =>
-      cellArr.forEach((cell) =>
-        this.#boardContainer.append(cell.element.render()),
-      ),
-    );
+    for (let i = 0; i < this.#cellsMap.length; i++)
+      for (let j = 0; j < this.#cellsMap[i].length; j++)
+        this.#boardContainer.appendChild(this.#cellsMap[j][i].element.render());
 
-    const horizontalContainer = document.createElement('div');
+    const verticalContainer = document.createElement('div');
 
     this.#verticalPlacementToggle.type = 'checkbox';
     this.#verticalPlacementToggle.id = 'vertical';
@@ -199,12 +197,12 @@ class PlaceShipsBoardView {
     verticalLabel.setAttribute('for', 'vertical');
     verticalLabel.textContent = 'Vertical';
 
-    horizontalContainer.append(this.#verticalPlacementToggle, verticalLabel);
+    verticalContainer.append(this.#verticalPlacementToggle, verticalLabel);
 
     this.#root.append(
       this.#spanShipBeingSelected,
       this.#boardContainer,
-      horizontalContainer,
+      verticalContainer,
     );
 
     return this.#root;

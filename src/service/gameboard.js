@@ -20,14 +20,13 @@ import { Ship } from './ship';
 
 /**
  * @typedef {Object} BoardCellDto
- * @property {import('./ship').ShipDto} ship
+ * @property {?import('./ship').ShipDto} ship
  * @property {Boolean} isHit
  */
 
 /** @typedef {GameboardDto} AllShipsDestroyedEvent */
 
 const ALL_SHIPS_DESTROYED_EVENT = 'AllShipsDestroyed';
-const SHIP_PLACED_EVENT = 'SHIP_PLACED_EVENT';
 
 class Gameboard {
   /** @type {PubSub} */
@@ -142,17 +141,17 @@ class Gameboard {
 
   /** @returns {GameboardDto} */
   toJSON = () => {
-    const board = Array(10);
-    for (let i = 0; i < this.board.length; i++) {
-      board[i] = Array(10);
-      for (let j = 0; j < this.board[i].length; j++)
-        board[i][j] = {
-          ship: this.board[i][j].ship?.toJSON() ?? null,
-          isHit: this.board[i][j].isHit,
-        };
+    return {
+      board: this.board.map((cellArr) => {
+        return cellArr.map((cell) => {
+          return {
+            ship: cell.ship?.toJSON() ?? null,
+            isHit: cell.isHit,
+          };
+        });
+      })
     }
-    return { board: board };
-  }
+};
 }
 
 export { Gameboard, ALL_SHIPS_DESTROYED_EVENT };

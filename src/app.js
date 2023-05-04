@@ -17,7 +17,7 @@ const app = function () {
   let playerBoardController;
 
   const newGame = () => {
-    playerGameBoard = new Gameboard(10, eventBus);
+    playerGameBoard = new Gameboard(8, eventBus);
     const gf = getFlow(ShipType);
 
     const startNewGameScreen = new PlaceShipsBoardView({
