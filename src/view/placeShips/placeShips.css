@@ -1,9 +1,3 @@
-.board__grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  width: max-content;
-}
-
 .place-ships-board__centered {
   position: absolute;
   top: 50%;

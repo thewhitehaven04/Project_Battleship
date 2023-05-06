@@ -2,8 +2,13 @@ import { PubSub } from '../utils/eventBus';
 import { ALL_SHIPS_DESTROYED_EVENT, Gameboard } from './gameboard';
 import { PLAYER_MOVE_EVENT, Player } from './player';
 
+/** @typedef {{winner: import('./player').PlayerDto}} GameFinishedEvent */
+
 /**
- * @typedef {{winner: import('./player').PlayerDto}} GameFinishedEvent
+ * @typedef {Array<{
+ *  player: import('./player').PlayerDto,
+ *  boardState: import('./gameboard').GameboardDto
+ * }>} GameState
  */
 
 const GAME_FINISHED_EVENT = 'GameFinishedEvent';
@@ -78,6 +83,16 @@ class Game {
     this.eventBus.notify(GAME_FINISHED_EVENT, {
       winner: this.playerBoards[this.#counter % 2].player.toJSON(),
     });
+
+  /** @returns {GameState} */
+  toJSON() {
+    return this.playerBoards.map((pb) => {
+      return {
+        player: pb.player.toJSON(),
+        boardState: pb.board.toJSON(),
+      };
+    });
+  }
 }
 
 export { Game, GAME_FINISHED_EVENT };

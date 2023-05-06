@@ -1,0 +1,12 @@
+.screen-boards-split {
+  display: flex;
+  flex-flow: row nowrap;
+  
+  justify-content: space-evenly;
+}
+
+.board-section {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+}

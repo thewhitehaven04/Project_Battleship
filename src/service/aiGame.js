@@ -53,6 +53,16 @@ class AiGameLoop {
         );
     }
   }
+  
+  /**
+   * @returns {import('../view/aiGame/aiGameView').AIGameState}
+   */
+  toJSON = () => {
+    const gs = this.game.toJSON();
+    const computer = gs.find(playerDto => playerDto.player.name === this.aiPlayer.toJSON().name);
+    const player = gs.find(playerDto => playerDto.player.name !== this.aiPlayer.toJSON().name);
+    return { computer: computer ?? null, player: player ?? null};
+  }
 }
 
 export { AiGameLoop };

@@ -38,7 +38,7 @@ class PlaceBoard extends Board {
     const toRemoveHightlights = this.cellsMap
       .flat(1)
       .map((cellMap) => cellMap)
-      .filter((cell) => bvMap.includes(cell));
+      .filter((cell) => !bvMap.includes(cell));
 
     toRemoveHightlights.forEach((cellWithHighlight) => {
       cellWithHighlight.element.render().classList.remove(hightlightClass);
@@ -63,7 +63,6 @@ class PlaceShipsBoardView {
    * @param {PlaceBoard} board
    */
   constructor(viewState, board) {
-    
     this.#root = document.createElement('div');
 
     this.#spanShipBeingSelected = document.createElement('span');
@@ -103,14 +102,11 @@ class PlaceShipsBoardView {
 
   /** @param {import('../../service/ship').ShipDto} ship */
   #requestShipCoordinates(ship) {
-    if (this.#currentListener)
-      this.#boardContainer.removeEventListener('click', this.#currentListener);
-    
-    if (this.#mouseEnterListener)
-      this.#boardContainer.removeEventListener(
-        'mousemove',
-        this.#mouseEnterListener,
-      );
+    this.#boardContainer.removeEventListener('click', this.#currentListener);
+    this.#boardContainer.removeEventListener(
+      'mousemove',
+      this.#mouseEnterListener,
+    );
 
     this.#currentListener = (event) => {
       const closest = event.target.closest('.board-cell');
@@ -123,7 +119,7 @@ class PlaceShipsBoardView {
       }
     };
     this.#mouseEnterListener = (/** @type {MouseEvent} */ event) => {
-      if (event.target.matches('.board-cell')) {
+      if (event.target?.matches('.board-cell')) {
         const closest = event.target.closest('.board-cell');
         const line = this.#getLineOfCells(
           this.board.getCoordinatesByBoardCell(closest),
@@ -171,7 +167,7 @@ class PlaceShipsBoardView {
 
   /** @param {ShipPlacementRequest} shipPlacementRequest */
   update({ ship, boardState }) {
-    if (boardState) this.board.update({ cells: boardState });
+    if (boardState) this.board.update({ board: boardState });
     if (ship) this.#requestShipCoordinates(ship);
   }
 }

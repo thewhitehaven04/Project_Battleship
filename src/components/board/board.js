@@ -1,7 +1,4 @@
-/**
- * @typedef {Object} BoardState
- * @property {import("../../service/gameboard").BoardCellDto[][]} cells
- */
+/** @typedef {import('../../service/gameboard').GameboardDto} BoardState */
 
 import { BoardCell } from '../boardCell/boardCell';
 import style from './board.css';
@@ -15,15 +12,14 @@ import style from './board.css';
 
 /** @implements {Component<BoardState>} */
 class Board {
-  #root;
 
   /** @param {BoardState} boardState */
   constructor(boardState) {
-    this.length = boardState.cells.length
+    this.length = boardState.board.length
 
     /** @type {BoardViewMapping[][]} */
-    this.cellsMap = Array(boardState.cells.length).fill(Array(undefined));
-    this.cellsMap = boardState.cells.map((cellArray) => {
+    this.cellsMap = Array(boardState.board.length).fill(Array(undefined));
+    this.cellsMap = boardState.board.map((cellArray) => {
       return cellArray.map((cell) => {
         return {
           data: cell,
@@ -31,34 +27,34 @@ class Board {
         };
       });
     });
-    this.#root = document.createElement('div');
+    this.root = document.createElement('div');
   }
 
   /** @param {BoardState} boardState */
   update(boardState) {
     for (let i = 0; i < this.cellsMap.length; i++) {
       for (let j = 0; j < this.cellsMap[i].length; j++) {
-        if (boardState.cells[i][j] !== this.cellsMap[i][j].data) {
-          this.cellsMap[i][j].data = boardState.cells[i][j];
-          this.cellsMap[i][j].element.update(boardState.cells[i][j]);
+        if (boardState.board[i][j] !== this.cellsMap[i][j].data) {
+          this.cellsMap[i][j].data = boardState.board[i][j];
+          this.cellsMap[i][j].element.update(boardState.board[i][j]);
         }
       }
     }
   }
 
   render() {
-    this.#root.replaceChildren();
-    this.#root.classList.add('board__grid');
+    this.root.replaceChildren();
+    this.root.classList.add('board__grid');
     for (let i = 0; i < this.cellsMap.length; i++)
       for (let j = 0; j < this.cellsMap[i].length; j++)
-        this.#root.appendChild(this.cellsMap[j][i].element.render());
+        this.root.appendChild(this.cellsMap[j][i].element.render());
 
-    return this.#root;
+    return this.root;
   }
 
   /** @param {import('../../service/gameboard').BoardCoordinates} coordinates */
   getBoardCellByCoordinates(coordinates) {
-    return this.cellsMap[coordinates.y][coordinates.x];
+    return this.cellsMap[coordinates.x][coordinates.y];
   }
 
   /**
