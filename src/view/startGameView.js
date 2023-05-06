@@ -1,14 +1,23 @@
 /**
- * @param {UpdatableView<import("../service/gameboard").GameboardDto>} boardView 
- * @returns 
+ * @typedef {Object} AIGameState
+ * @property {{boardState: import("../service/gameboard").GameboardDto, player: import("../service/player").PlayerDto}} computer
+ * @property {{boardState: import("../service/gameboard").GameboardDto, player: import("../service/player").PlayerDto}} player 
  */
-const StartAIGameView = function (boardView) {
-  const frag = document.createDocumentFragment();  
-  const enemyBoard = boardView; 
 
-  return {
-    render: () => {
-      
-    }
+/**
+ * @implements {UpdatableView<AIGameState>}
+ */
+class AIGameView {
+  
+  constructor(view) {
+    this.view = view;
+  }
+
+  update() { 
+
   } 
+
+  render() {
+
+  }
 }

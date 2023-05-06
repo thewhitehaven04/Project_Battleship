@@ -37,18 +37,16 @@ class PlaceBoardController {
         placementCommand.vertical,
       );
       const next = this.shipRequestGenerator.next();
-      if (!next.done) {
-        this.view.update({
-          ship: next.value,
-          boardState: this.model.toJSON().board,
-        });
-      } else {
+      this.view.update({
+        ship: next.value,
+        boardState: this.model.toJSON().board,
+      });
+      if (next.done)
         this.pubSub.notify(ALL_SHIPS_PLACED_EVENT, this.model.toJSON());
-      }
     } catch (err) {
       console.error(`Error: ${err}`);
     }
   };
 }
 
-export { PlaceBoardController };
+export { PlaceBoardController, ALL_SHIPS_PLACED_EVENT };

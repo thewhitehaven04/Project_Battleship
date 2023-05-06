@@ -13,9 +13,9 @@ dom.i2svg();
 
 
 /**
- * @implements {UpdatableView<import('../../service/gameboard').BoardCellDto>}
+ * @implements {Component<import('../../service/gameboard').BoardCellDto>}
  */
-class BoardCellView {
+class BoardCell {
   xMark = icon(findIconDefinition({ iconName: 'xmark', prefix: 'fas' }));
   ship = icon(findIconDefinition({ iconName: 'ship', prefix: 'fas' }));
   water = icon(findIconDefinition({ iconName: 'water', prefix: 'fas' }));
@@ -55,4 +55,4 @@ class BoardCellView {
   }
 }
 
-export { BoardCellView };
+export { BoardCell };
