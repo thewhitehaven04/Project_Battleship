@@ -52,11 +52,11 @@ class PlaceBoard extends Board {
 class PlaceShipsBoardView {
   #root;
   #boardContainer;
-  #divShipBeingSelected
+  #divShipBeingSelected;
 
   #currentListener;
   #mouseEnterListener;
-  #verticalPlacementToggle;
+  #vertical;
 
   /**
    * @param {ShipPlacementRequest} viewState
@@ -67,7 +67,7 @@ class PlaceShipsBoardView {
     this.#root.classList.add('main__centered');
 
     this.#divShipBeingSelected = document.createElement('div');
-    this.#verticalPlacementToggle = document.createElement('input');
+    this.#vertical = false;
 
     this.#currentListener = null;
     this.#mouseEnterListener = null;
@@ -115,7 +115,7 @@ class PlaceShipsBoardView {
         this.handlePlacement({
           ship: ship,
           coordinates: this.board.getCoordinatesByBoardCell(closest),
-          vertical: this.#verticalPlacementToggle.checked,
+          vertical: this.#vertical,
         });
       }
     };
@@ -125,7 +125,7 @@ class PlaceShipsBoardView {
         const line = this.#getLineOfCells(
           this.board.getCoordinatesByBoardCell(closest),
           ship.length,
-          this.#verticalPlacementToggle.checked,
+          this.#vertical,
         );
         this.board.highlightCells(line);
       }
@@ -136,6 +136,10 @@ class PlaceShipsBoardView {
       'mouseover',
       this.#mouseEnterListener,
     );
+    this.#boardContainer.addEventListener(
+      'auxclick',
+      () => (this.#vertical = !this.#vertical),
+    );
 
     this.#divShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
       ship.type,
@@ -143,23 +147,14 @@ class PlaceShipsBoardView {
   }
 
   render() {
-    const verticalContainer = document.createElement('div');
-
-    this.#verticalPlacementToggle.type = 'checkbox';
-    this.#verticalPlacementToggle.id = 'vertical';
-    this.#verticalPlacementToggle.checked = true;
-
     const verticalLabel = document.createElement('label');
-    verticalLabel.setAttribute('for', 'vertical');
-    verticalLabel.textContent = 'Vertical';
+    verticalLabel.textContent =
+      'In order to change the desired orientation of the ship, click on the middle button of your mouse.';
 
-    verticalContainer.append(this.#verticalPlacementToggle, verticalLabel);
-
-    this.#divShipBeingSelected.classList.add('ship-select-message__font');
     this.#root.append(
       this.#divShipBeingSelected,
+      verticalLabel,
       this.#boardContainer,
-      verticalContainer,
     );
 
     return this.#root;

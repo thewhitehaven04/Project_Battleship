@@ -7,12 +7,15 @@
   --jet: #3a3335;
   --rojo: #db222a;
   --emerald: #2fbf71;
+  font-family: 'Orbitron';
+  font-size: 12pt;
 }
 
 *,
 *::after,
 *::before {
   box-sizing: inherit;
+  font-family: inherit;
 }
 
 .main__centered {
