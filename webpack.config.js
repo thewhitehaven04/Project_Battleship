@@ -32,7 +32,7 @@ module.exports = {
         type: 'asset/inline',
       },
       {
-        test: /\.(ttf|eot|svg)$/,
+        test: /\.(png|svg|jpg|jpeg|ttf)$/i,
         type: 'asset/resource',
       },
       {

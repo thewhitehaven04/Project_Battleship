@@ -21,7 +21,6 @@ class BoardCell {
   locationCrosshairs = icon(
     findIconDefinition({ iconName: 'location-crosshairs', prefix: 'fas' }),
   );
-  #root;
   #boardCellData;
 
   /** @param {import('../../service/gameboard').BoardCellDto} boardCell */

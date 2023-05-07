@@ -9,3 +9,4 @@ The purpose of this project is to exercise skills of test-driven-development, pr
 - Battleship icon by Vectoricons 
 - Aircraft carrier icon by max.icons
 - Destroyer icon by LAFS
+- Header icon by smalllikeart

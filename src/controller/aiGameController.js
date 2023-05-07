@@ -1,5 +1,4 @@
 import { AiGameLoop } from '../service/aiGame';
-import { GAME_FINISHED_EVENT } from '../service/game';
 import { PubSub } from '../utils/eventBus';
 import { AIGameView } from '../view/aiGame/aiGameView';
 

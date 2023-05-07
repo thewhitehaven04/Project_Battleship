@@ -1,9 +1,16 @@
 :root {
   box-sizing: border-box;
+  font-family: 'Orbitron';
 }
 
 *,
 *::after,
 *::before {
   box-sizing: inherit;
+}
+
+.main__centered {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
 }

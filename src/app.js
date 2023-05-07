@@ -21,11 +21,17 @@ import { EnemyBoard } from './components/enemyBoard/enemyBoard';
 import { AIGameController } from './controller/aiGameController';
 import { config } from './appConfig';
 import { AiGameboardFactory } from './utils/aiGameboardFactory.js';
+import { BattleshipHeader } from './components/battleshipHeader/battleshipHeader';
+import image from './assets/icons/battleship_icon_header.png';
 
-const game = function () {
+const app = function () {
   const appRoot = document.querySelector('body');
+  const main = document.createElement('main');
   const eventBus = new PubSub();
   eventBus.subscribe(ALL_SHIPS_PLACED_EVENT, startAIGame);
+
+  /** render layout */
+  appRoot?.append(new BattleshipHeader({ iconPath: image }).render(), main);
 
   /** @type {Gameboard} */
   let playerGameBoard;
@@ -43,11 +49,11 @@ const game = function () {
     );
     new PlaceBoardController(playerGameBoard, startNewGameScreen, gf, eventBus);
 
-    appRoot?.append(startNewGameScreen.render());
+    main.append(startNewGameScreen.render());
   }
 
   function startAIGame() {
-    appRoot?.replaceChildren();
+    main?.replaceChildren();
 
     const mockPlayer = new Player('Mikhail', eventBus);
     const aiPlayer = new Player('Computer', eventBus);
@@ -82,12 +88,8 @@ const game = function () {
         winner: null,
       },
     );
-    appRoot?.appendChild(aiGameView.render());
-    new AIGameController(
-      aiGameLoopModel,
-      aiGameView,
-      eventBus,
-    );
+    main.appendChild(aiGameView.render());
+    new AIGameController(aiGameLoopModel, aiGameView, eventBus);
   }
 
   return {
@@ -95,4 +97,4 @@ const game = function () {
   };
 };
 
-game().start();
+app().start();

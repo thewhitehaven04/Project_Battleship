@@ -52,7 +52,7 @@ class PlaceBoard extends Board {
 class PlaceShipsBoardView {
   #root;
   #boardContainer;
-  #spanShipBeingSelected;
+  #divShipBeingSelected
 
   #currentListener;
   #mouseEnterListener;
@@ -63,9 +63,10 @@ class PlaceShipsBoardView {
    * @param {PlaceBoard} board
    */
   constructor(viewState, board) {
-    this.#root = document.createElement('div');
+    this.#root = document.createElement('main');
+    this.#root.classList.add('main__centered');
 
-    this.#spanShipBeingSelected = document.createElement('span');
+    this.#divShipBeingSelected = document.createElement('div');
     this.#verticalPlacementToggle = document.createElement('input');
 
     this.#currentListener = null;
@@ -136,14 +137,12 @@ class PlaceShipsBoardView {
       this.#mouseEnterListener,
     );
 
-    this.#spanShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
+    this.#divShipBeingSelected.textContent = `Place the ${shipTypeMapping.get(
       ship.type,
     )}`;
   }
 
   render() {
-    this.#boardContainer.classList.add('place-ships-board__centered');
-
     const verticalContainer = document.createElement('div');
 
     this.#verticalPlacementToggle.type = 'checkbox';
@@ -157,7 +156,7 @@ class PlaceShipsBoardView {
     verticalContainer.append(this.#verticalPlacementToggle, verticalLabel);
 
     this.#root.append(
-      this.#spanShipBeingSelected,
+      this.#divShipBeingSelected,
       this.#boardContainer,
       verticalContainer,
     );
