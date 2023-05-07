@@ -5,10 +5,18 @@
   border: 1px solid navy;
 }
 
-.board-cell > [role="img"] {
+.board-cell > [role='img'] {
   width: 90%;
   height: 90%;
   padding: 3px;
 
   color: royalblue;
+}
+
+.board-cell-hit > [role='img'] {
+  color: red;
+}
+
+.board-cell-miss > [role='img'] {
+  color: green;
 }

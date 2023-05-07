@@ -31,7 +31,7 @@ const ALL_SHIPS_DESTROYED_EVENT = 'AllShipsDestroyed';
 class Gameboard {
   /** @type {PubSub} */
   #pubSub;
-  /** @type {Array<Ship>} */
+  /** @type {Ship[]} */
   #ships;
 
   /**
@@ -43,7 +43,7 @@ class Gameboard {
     this.#ships = [];
     this.size = size;
 
-    /** @type Array<Array<BoardCell>> */
+    /** @type BoardCell[][] */
     this.board = Array(size);
 
     for (let i = 0; i < size; i++) {

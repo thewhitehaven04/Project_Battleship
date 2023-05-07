@@ -1,5 +1,5 @@
 import { Board } from '../board/board';
-import { BoardCell } from '../boardCell/boardCell';
+import { EnemyBoardCell } from '../enemyBoardCell/enemyBoardCell';
 
 class EnemyBoard extends Board {
   /** @param {import("../board/board").BoardState} boardState */
@@ -7,7 +7,7 @@ class EnemyBoard extends Board {
     super(boardState);
     this.cellsMap.forEach((cellArr, i) => {
       cellArr.forEach((cell, j) => {
-        this.cellsMap[i][j].element = new BoardCell({
+        this.cellsMap[i][j].element = new EnemyBoardCell({
           ship: null,
           isHit: false,
         });

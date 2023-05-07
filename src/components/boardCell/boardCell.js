@@ -11,7 +11,6 @@ import style from './boardCell.css';
 library.add(fas, far);
 dom.i2svg();
 
-
 /**
  * @implements {Component<import('../../service/gameboard').BoardCellDto>}
  */
@@ -27,31 +26,34 @@ class BoardCell {
 
   /** @param {import('../../service/gameboard').BoardCellDto} boardCell */
   constructor(boardCell) {
-    this.#root = document.createElement('div');
-    this.#root.classList.add('board-cell');
-    this.#root.appendChild(this.#getIcon(this.#boardCellData));
-    
+    this.root = document.createElement('div');
+    this.root.classList.add('board-cell');
+    this.root.appendChild(this.#getIcon(this.#boardCellData));
+
     this.#boardCellData = boardCell;
   }
 
   /** @param {import('../../service/gameboard').BoardCellDto} boardCell */
   #getIcon(boardCell) {
-    if (boardCell?.ship) {
-      if (boardCell?.isHit) return this.xMark.node[0];
-      else return this.ship.node[0];
-    } else {
-      if (boardCell?.isHit) return this.locationCrosshairs.node[0];
-      else return this.water.node[0];
-    }
+    if (boardCell?.ship)
+      return boardCell?.isHit ? this.xMark.node[0] : this.ship.node[0];
+    return boardCell?.isHit
+      ? this.locationCrosshairs.node[0]
+      : this.water.node[0];
   }
 
   render() {
-    return this.#root;
+    return this.root;
   }
 
   /** @param {import("../../service/gameboard").BoardCellDto} boardCell */
   update(boardCell) {
-    this.#root.replaceChildren(this.#getIcon(boardCell));
+    const { isHit, ship } = boardCell;
+    if (isHit)
+      ship
+        ? this.root.classList.add('board-cell-hit')
+        : this.root.classList.add('board-cell-miss');
+    this.root.replaceChildren(this.#getIcon(boardCell));
   }
 }
 

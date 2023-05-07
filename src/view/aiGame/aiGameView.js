@@ -40,7 +40,9 @@ class AIGameView {
     const { board: playerState } = gameState.player.boardState;
     this.computerBoard.update({ board: computerState });
     this.playerBoard.update({ board: playerState });
-    this.#displayWinner()
+
+    if (this.state.winner)
+      this.#displayWinner()
   }
 
   #displayWinner() {
