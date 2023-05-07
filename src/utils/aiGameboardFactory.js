@@ -1,6 +1,6 @@
 import { Gameboard } from '../service/gameboard';
 import { Ship, ShipType } from '../service/ship';
-import { randInt } from './math';
+import { choice, randInt } from './math';
 
 /**
  * @param {Array} a
@@ -22,22 +22,17 @@ const dot = (a, b) => {
  * @param {ShipType[]} shipTypes
  */
 const AiGameboardFactory = function (gameboard, shipTypes) {
-  const coordSpace = dot(
-    [...Array(gameboard.size).keys()],
-    [...Array(gameboard.size).keys()],
-  ).map((value) => {
-    return {
-      x: value[0],
-      y: value[1],
-    };
-  });
+  const lines = [...Array(gameboard.size).keys()];
+  const index = lines.findIndex((line) => line === choice(lines));
 
-  // let X = [...Array(gameboard.size).keys()];
-  // let Y = [...Array(gameboard.size).keys()];
-  let y = 0;
   for (let { type, length } of shipTypes) {
-    gameboard.placeShip({ x: 0, y: y }, () => new Ship(type, length));
-    y++;
+    gameboard.placeShip(
+      {
+        x: randInt(0, gameboard.size - length),
+        y: lines.splice(index, 1).pop() ?? 0,
+      },
+      () => new Ship(type, length),
+    );
   }
   return gameboard;
 };
