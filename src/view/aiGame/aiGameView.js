@@ -64,12 +64,14 @@ class AIGameView {
     const playerSection = document.createElement('section');
     const playerName = document.createElement('span');
     playerName.textContent = `${this.state.player.player.name}'s board`;
+    playerName.classList.add('board-label__centered', 'board-label__font');
     playerSection.classList.add('board-section', 'grid-first-board');
     playerSection.append(playerName, this.playerBoard.render());
 
     const enemySection = document.createElement('section');
     const enemyName = document.createElement('span');
     enemyName.textContent = `${this.state.computer.player.name}'s board`;
+    enemyName.classList.add('board-label__centered', 'board-label__font');
     enemySection.classList.add('board-section', 'grid-second-board');
     enemySection.append(enemyName, this.computerBoard.render());
 

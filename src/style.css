@@ -1,6 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron');
+
 :root {
   box-sizing: border-box;
-  font-family: 'Orbitron';
+  --mint-cream: #f0f7f4;
+  --cerulean: #247ba0;
+  --jet: #3a3335;
+  --rojo: #db222a;
+  --emerald: #2fbf71;
 }
 
 *,
@@ -13,4 +19,12 @@
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+
+  row-gap: 10px;
+  margin: 10px;
+}
+
+
+body {
+  background-color: var(--mint-cream);
 }

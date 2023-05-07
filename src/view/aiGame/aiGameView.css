@@ -26,3 +26,11 @@
   grid-area: winner;
   place-self: center;
 }
+
+.board-label__centered {
+  text-align: center;
+}
+
+.board-label__font {
+  font-family: Orbitron;
+}

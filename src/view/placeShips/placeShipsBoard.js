@@ -155,6 +155,7 @@ class PlaceShipsBoardView {
 
     verticalContainer.append(this.#verticalPlacementToggle, verticalLabel);
 
+    this.#divShipBeingSelected.classList.add('ship-select-message__font');
     this.#root.append(
       this.#divShipBeingSelected,
       this.#boardContainer,
