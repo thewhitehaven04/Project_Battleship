@@ -3,7 +3,7 @@ import { GAME_FINISHED_EVENT, Game } from './game';
 import { Player } from './player';
 
 class AiGameLoop {
-  #gameFinished;
+  #winner;
 
   /**
    * @param {Game} game
@@ -16,12 +16,10 @@ class AiGameLoop {
     this.aiPlayer = aiPlayer;
     this.moveProvider = moveProvider;
     this.pubSub = pubSub;
-    this.#gameFinished = false;
+    this.#winner = null;
 
+    this.pubSub.subscribe(GAME_FINISHED_EVENT, this.#endGame);
     this.#startGame();
-    this.pubSub.subscribe(GAME_FINISHED_EVENT, () => {
-      this.#gameFinished = true;
-    });
   }
 
   #startGame() {
@@ -35,14 +33,19 @@ class AiGameLoop {
     }
   }
 
+  /** @param {import('./game').GameFinishedEvent} gameFinishedEvent */
+  #endGame = (gameFinishedEvent) => {
+    this.#winner = gameFinishedEvent.winner;
+  }
+
   /**
    * @param {import("./gameboard").BoardCoordinates} boardCell
    */
   nextMove(boardCell) {
-    if (!this.#gameFinished) this.game.nextTurn().performMove(boardCell);
+    if (!this.#winner) this.game.nextTurn().performMove(boardCell);
 
     // ai making a move
-    if (!this.#gameFinished) {
+    if (!this.#winner) {
       this.game
         .nextTurn()
         .performMove(
@@ -53,16 +56,24 @@ class AiGameLoop {
         );
     }
   }
-  
+
   /**
    * @returns {import('../view/aiGame/aiGameView').AIGameState}
    */
   toJSON = () => {
     const gs = this.game.toJSON();
-    const computer = gs.find(playerDto => playerDto.player.name === this.aiPlayer.toJSON().name);
-    const player = gs.find(playerDto => playerDto.player.name !== this.aiPlayer.toJSON().name);
-    return { computer: computer ?? null, player: player ?? null};
-  }
+    const computer = gs.find(
+      (playerDto) => playerDto.player.name === this.aiPlayer.toJSON().name,
+    );
+    const player = gs.find(
+      (playerDto) => playerDto.player.name !== this.aiPlayer.toJSON().name,
+    );
+    return {
+      computer: computer ?? null,
+      player: player ?? null,
+      winner: this.#winner,
+    };
+  };
 }
 
 export { AiGameLoop };

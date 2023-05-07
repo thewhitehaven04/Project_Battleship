@@ -1,12 +1,28 @@
 .screen-boards-split {
-  display: flex;
-  flex-flow: row nowrap;
-  
-  justify-content: space-evenly;
+  display: grid;
+  grid-template-areas: "winner winner"
+  "first-board second-board";
+
+  place-content: space-evenly;
+  place-items: center;
 }
 
 .board-section {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
+}
+
+.grid-first-board {
+  grid-area: first-board;
+}
+
+.grid-second-board {
+  grid-area: second-board;
+}
+
+.grid-winner-header {
+  height: 100px;
+  grid-area: winner;
+  place-self: center;
 }

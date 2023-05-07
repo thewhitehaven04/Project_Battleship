@@ -4,15 +4,7 @@
  * @property {function(Number, Array<import("./gameboard").BoardCoordinates>): import("./gameboard").BoardCoordinates} getCell
  */
 
-/**
- * @param {Number} a
- * @param {Number} b
- */
-const randInt = (a, b) => {
-  a = Math.ceil(a);
-  b = Math.floor(b);
-  return Math.floor(Math.random() * (a - b) + b);
-};
+import { randInt } from "../utils/math";
 
 /**
  * @returns {MoveProvider}

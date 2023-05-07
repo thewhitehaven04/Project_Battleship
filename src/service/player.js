@@ -35,9 +35,7 @@ class Player {
 
   /** @returns {PlayerDto} */
   toJSON() {
-    return {
-      name: this.name 
-    }
+    return { name: this.name };
   }
 }
 

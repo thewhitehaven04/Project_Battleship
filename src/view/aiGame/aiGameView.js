@@ -2,6 +2,7 @@
  * @typedef {Object} AIGameState
  * @property {{boardState: import("../../service/gameboard").GameboardDto, player: import("../../service/player").PlayerDto}} computer
  * @property {{boardState: import("../../service/gameboard").GameboardDto, player: import("../../service/player").PlayerDto}} player
+ * @property {?import('../../service/player').PlayerDto} winner
  */
 
 import { Board } from '../../components/board/board';
@@ -23,6 +24,7 @@ class AIGameView {
     this.state = gameState;
 
     this.root = document.createElement('div');
+    this.winner = document.createElement('div');
 
     /** handle player moves */
     this.computerBoard.handleHit = this.computerBoard.handleHit.bind(
@@ -33,10 +35,16 @@ class AIGameView {
 
   /** @param {AIGameState} gameState */
   update(gameState) {
+    this.state = gameState;
     const { board: computerState } = gameState.computer.boardState;
     const { board: playerState } = gameState.player.boardState;
     this.computerBoard.update({ board: computerState });
     this.playerBoard.update({ board: playerState });
+    this.#displayWinner()
+  }
+
+  #displayWinner() {
+    this.winner.textContent = `${this.state.winner?.name} has won!`;
   }
 
   /** direct player moves to controller */
@@ -49,20 +57,22 @@ class AIGameView {
   };
 
   render() {
+    this.winner.classList.add('winner');
+
     const playerSection = document.createElement('section');
     const playerName = document.createElement('span');
     playerName.textContent = `${this.state.player.player.name}'s board`;
-    playerSection.classList.add('board-section');
+    playerSection.classList.add('board-section', 'grid-first-board');
     playerSection.append(playerName, this.playerBoard.render());
 
     const enemySection = document.createElement('section');
     const enemyName = document.createElement('span');
     enemyName.textContent = `${this.state.computer.player.name}'s board`;
-    enemySection.classList.add('board-section');
+    enemySection.classList.add('board-section', 'grid-second-board');
     enemySection.append(enemyName, this.computerBoard.render());
 
     this.root.classList.add('screen-boards-split');
-    this.root.append(playerSection, enemySection);
+    this.root.append(this.winner, playerSection, enemySection);
 
     return this.root;
   }

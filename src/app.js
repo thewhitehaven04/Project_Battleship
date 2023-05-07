@@ -20,6 +20,7 @@ import { Board } from './components/board/board';
 import { EnemyBoard } from './components/enemyBoard/enemyBoard';
 import { AIGameController } from './controller/aiGameController';
 import { config } from './appConfig';
+import { AiGameboardFactory } from './utils/aiGameboardFactory.js';
 
 const game = function () {
   const appRoot = document.querySelector('body');
@@ -50,7 +51,10 @@ const game = function () {
 
     const mockPlayer = new Player('Mikhail', eventBus);
     const aiPlayer = new Player('Computer', eventBus);
-    const aiGameBoard = new Gameboard(config.boardSize, eventBus);
+    const aiGameBoard = AiGameboardFactory(
+      new Gameboard(config.boardSize, eventBus),
+      Object.values(ShipType),
+    );
     const aiGameLoopModel = new AiGameLoop(
       new Game(
         [mockPlayer, aiPlayer],
@@ -75,10 +79,15 @@ const game = function () {
           player: aiPlayer.toJSON(),
           boardState: enemyBoardState,
         },
+        winner: null,
       },
     );
     appRoot?.appendChild(aiGameView.render());
-    const controller = new AIGameController(aiGameLoopModel, aiGameView);
+    new AIGameController(
+      aiGameLoopModel,
+      aiGameView,
+      eventBus,
+    );
   }
 
   return {
