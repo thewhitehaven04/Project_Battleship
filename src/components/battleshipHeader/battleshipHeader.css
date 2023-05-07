@@ -8,8 +8,7 @@
 }
 
 .battleship-header > img {
-  aspect-ratio: 1;
-  width: 200px;
+  width: 150px;
 }
 
 .battleship-header h1 {

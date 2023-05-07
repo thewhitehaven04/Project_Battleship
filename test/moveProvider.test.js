@@ -5,7 +5,7 @@ it('Move provider generates a valid cell', () => {
   const missedHits = [];
   const cell = moveProvider().getCell(upperBound, missedHits);
   expect(cell).toHaveProperty('x');
-  expect(cell).toHaveProperty('y')
+  expect(cell).toHaveProperty('y');
 });
 
 it('Move provider does not generate cells outside of board bounds', () => {
@@ -33,7 +33,6 @@ it('Move provider does not generate the same cell all the time', () => {
   const missedHits = [];
   const move = moveProvider();
   const firstCell = move.getCell(upperBound, missedHits);
-
   missedHits.push(firstCell);
 
   const secondCell = move.getCell(upperBound, missedHits);
@@ -42,7 +41,7 @@ it('Move provider does not generate the same cell all the time', () => {
   ).toBeFalsy();
 });
 
-it("Move provider does not generate cells that resulted in a hit on an enemy ship", () => {
+it('Move provider does not generate cells that resulted in a hit on an enemy ship', () => {
   const upperBound = 4;
   const missedHits = [];
   const previouslyGenerated = [];
@@ -52,16 +51,16 @@ it("Move provider does not generate cells that resulted in a hit on an enemy shi
     expect(previouslyGenerated.includes(cell)).toBeFalsy();
     previouslyGenerated.push(cell);
   }
-})
+});
 
-it("Move provider generates the entire range of board cells", () => {
+it('Move provider generates the entire range of board cells', () => {
   const upperBound = 3;
   const missedHits = [];
   const move = moveProvider();
 
-  for (let i = 0; i < upperBound * upperBound; i++){
-    const cell = move.getCell(3, missedHits);    
-    missedHits.push(cell); 
+  for (let i = 0; i < upperBound * upperBound; i++) {
+    const cell = move.getCell(upperBound, missedHits);
+    missedHits.push(cell);
   }
   expect(missedHits).toContainEqual({ x: 0, y: 0 });
   expect(missedHits).toContainEqual({ x: 1, y: 0 });
@@ -72,4 +71,22 @@ it("Move provider generates the entire range of board cells", () => {
   expect(missedHits).toContainEqual({ x: 0, y: 2 });
   expect(missedHits).toContainEqual({ x: 1, y: 2 });
   expect(missedHits).toContainEqual({ x: 2, y: 2 });
+});
+
+
+it("Move provider does not generated repeated cells", () => {
+  const upperBound = 5;
+  const missedHits = [];
+  const move = moveProvider();
+  const results = [];
+  for (let i = 0; i < upperBound * upperBound; i++){
+    const cell = move.getCell(upperBound, missedHits);
+    if (i % 2 === 0) missedHits.push(cell);
+    results.push(cell);
+  }
+
+  while (results.length > 0) {
+    const pop = results.pop();
+    expect(results.find(result => result.x === pop?.x && result.y === pop?.y)).toBeUndefined()
+  };
 })

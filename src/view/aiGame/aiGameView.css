@@ -24,7 +24,6 @@
 .grid-winner-header {
   height: 100px;
   grid-area: winner;
-  place-self: center;
 }
 
 .board-label__centered {
