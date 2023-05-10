@@ -1,0 +1,18 @@
+.restart-modal {
+  position: fixed;
+
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: white;
+  padding: 10px;
+  border: 1px solid var(--jet);
+}
+
+.restart-options__flex {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-evenly;
+}

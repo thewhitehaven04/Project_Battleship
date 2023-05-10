@@ -4,7 +4,7 @@ import {
 } from './controller/boardController';
 import { AiGameLoop } from './service/aiGame';
 import { AIGameView } from './view/aiGame/aiGameView';
-import { Game } from './service/game';
+import { GAME_FINISHED_EVENT, Game } from './service/game';
 import { getFlow } from './service/gameStartFlow';
 import { Gameboard } from './service/gameboard';
 import { moveProvider } from './service/moveProvider';
@@ -23,20 +23,29 @@ import { config } from './appConfig';
 import { AiGameboardFactory } from './utils/aiGameboardFactory.js';
 import { BattleshipHeader } from './components/battleshipHeader/battleshipHeader';
 import image from './assets/icons/battleship_icon_header.png';
+import { RestartGameModal } from './components/startNewGameModal/startNewGameModal';
 
 const app = function () {
   const appRoot = document.querySelector('body');
   const main = document.createElement('main');
-  const eventBus = new PubSub();
-  eventBus.subscribe(ALL_SHIPS_PLACED_EVENT, startAIGame);
+  
+  const modal = new RestartGameModal();
+  modal.handleRestartRequest = modal.handleRestartRequest.bind(runGame);
 
   /** render layout */
   appRoot?.append(new BattleshipHeader({ iconPath: image }).render(), main);
 
+  /** @type {PubSub} */
+  let eventBus;
+  
   /** @type {Gameboard} */
   let playerGameBoard;
 
-  function start() {
+  function newGameInstance() {
+    main.replaceChildren();
+    eventBus = new PubSub();
+    eventBus.subscribe(ALL_SHIPS_PLACED_EVENT, startAIGame);
+
     playerGameBoard = new Gameboard(config.boardSize, eventBus);
     const gf = getFlow(ShipType);
     const initState = {
@@ -48,12 +57,14 @@ const app = function () {
       new PlaceBoard({ board: initState.boardState }),
     );
     new PlaceBoardController(playerGameBoard, startNewGameScreen, gf, eventBus);
-
     main.append(startNewGameScreen.render());
   }
 
   function startAIGame() {
     main?.replaceChildren();
+    eventBus.subscribe(GAME_FINISHED_EVENT, async () => {
+      setTimeout(endGameHandler, 5000);
+    });
 
     const mockPlayer = new Player('Mikhail', eventBus);
     const aiPlayer = new Player('Computer', eventBus);
@@ -92,9 +103,17 @@ const app = function () {
     new AIGameController(aiGameLoopModel, aiGameView, eventBus);
   }
 
+  function endGameHandler() {
+    appRoot?.appendChild(modal.render());
+  }
+
+  function runGame() {
+    newGameInstance();
+  }
+
   return {
-    start,
+    runGame,
   };
 };
 
-app().start();
+app().runGame();

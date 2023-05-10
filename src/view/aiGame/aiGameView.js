@@ -59,7 +59,7 @@ class AIGameView {
   };
 
   render() {
-    this.winner.classList.add('winner');
+    this.winner.classList.add('grid-winner-header');
 
     const playerSection = document.createElement('section');
     const playerName = document.createElement('span');

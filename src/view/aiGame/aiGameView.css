@@ -22,8 +22,9 @@
 }
 
 .grid-winner-header {
-  height: 100px;
+  height: 30px;
   grid-area: winner;
+  font-size: 1.5rem;
 }
 
 .board-label__centered {

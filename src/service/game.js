@@ -5,10 +5,10 @@ import { PLAYER_MOVE_EVENT, Player } from './player';
 /** @typedef {{winner: import('./player').PlayerDto}} GameFinishedEvent */
 
 /**
- * @typedef {Array<{
+ * @typedef {{
  *  player: import('./player').PlayerDto,
  *  boardState: import('./gameboard').GameboardDto
- * }>} GameState
+ * }[]} GameState
  */
 
 const GAME_FINISHED_EVENT = 'GameFinishedEvent';
