@@ -21,7 +21,7 @@ class RestartGameModal {
     const restartButton = document.createElement('button');
     restartButton.type = 'button';
     restartButton.textContent = 'Yes';
-    restartButton.addEventListener('click', () => this.handleRestartRequest);
+    restartButton.addEventListener('click', () => this.handleRestartRequest());
 
     const closeWindowButton = document.createElement('button');
     closeWindowButton.type = 'button';

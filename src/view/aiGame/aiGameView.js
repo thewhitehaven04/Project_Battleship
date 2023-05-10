@@ -9,9 +9,7 @@ import { Board } from '../../components/board/board';
 import { EnemyBoard } from '../../components/enemyBoard/enemyBoard';
 import style from './aiGameView.css';
 
-/**
- * @implements {UpdatableView<AIGameState>}
- */
+/** @implements {UpdatableView<AIGameState>} */
 class AIGameView {
   /**
    * @param {Board} playerBoard

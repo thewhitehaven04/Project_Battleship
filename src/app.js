@@ -30,7 +30,7 @@ const app = function () {
   const main = document.createElement('main');
   
   const modal = new RestartGameModal();
-  modal.handleRestartRequest = modal.handleRestartRequest.bind(runGame);
+  modal.handleRestartRequest = modal.handleRestartRequest.bind(null, restartGame);
 
   /** render layout */
   appRoot?.append(new BattleshipHeader({ iconPath: image }).render(), main);
@@ -61,7 +61,6 @@ const app = function () {
   }
 
   function startAIGame() {
-    main?.replaceChildren();
     eventBus.subscribe(GAME_FINISHED_EVENT, async () => {
       setTimeout(endGameHandler, 5000);
     });
@@ -105,6 +104,11 @@ const app = function () {
 
   function endGameHandler() {
     appRoot?.appendChild(modal.render());
+  }
+
+  function restartGame() {
+    appRoot?.removeChild(modal.render());
+    runGame();
   }
 
   function runGame() {
