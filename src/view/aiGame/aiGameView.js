@@ -27,7 +27,7 @@ class AIGameView {
     /** handle player moves */
     this.computerBoard.handleHit = this.computerBoard.handleHit.bind(
       this,
-      this.handlePlayerMoveFromComputerBoard
+      this.handlePlayerMoveFromComputerBoard,
     );
   }
 
@@ -39,8 +39,7 @@ class AIGameView {
     this.computerBoard.update({ board: computerState });
     this.playerBoard.update({ board: playerState });
 
-    if (this.state.winner)
-      this.#displayWinner()
+    if (this.state.winner) this.#displayWinner();
   }
 
   #displayWinner() {
@@ -49,11 +48,11 @@ class AIGameView {
 
   /** direct player moves to controller */
   handlePlayerMoveFromComputerBoard = (move) => {
-    this.handleMove(move); 
+    this.handleMove(move);
   };
 
   handleMove = (handler, move) => {
-    handler(move)
+    handler(move);
   };
 
   render() {

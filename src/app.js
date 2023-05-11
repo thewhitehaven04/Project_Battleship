@@ -28,16 +28,19 @@ import { RestartGameModal } from './components/startNewGameModal/startNewGameMod
 const app = function () {
   const appRoot = document.querySelector('body');
   const main = document.createElement('main');
-  
+
   const modal = new RestartGameModal();
-  modal.handleRestartRequest = modal.handleRestartRequest.bind(null, restartGame);
+  modal.handleRestartRequest = modal.handleRestartRequest.bind(
+    null,
+    restartGame,
+  );
 
   /** render layout */
   appRoot?.append(new BattleshipHeader({ iconPath: image }).render(), main);
 
   /** @type {PubSub} */
   let eventBus;
-  
+
   /** @type {Gameboard} */
   let playerGameBoard;
 
@@ -84,20 +87,21 @@ const app = function () {
     );
     const playerBoardState = playerGameBoard.toJSON();
     const enemyBoardState = aiGameBoard.toJSON();
+    const gameState = {
+      player: {
+        player: mockPlayer.toJSON(),
+        boardState: playerBoardState,
+      },
+      computer: {
+        player: aiPlayer.toJSON(),
+        boardState: enemyBoardState,
+      },
+      winner: null,
+    };
     const aiGameView = new AIGameView(
       new Board(playerBoardState),
       new EnemyBoard(enemyBoardState),
-      {
-        player: {
-          player: mockPlayer.toJSON(),
-          boardState: playerBoardState,
-        },
-        computer: {
-          player: aiPlayer.toJSON(),
-          boardState: enemyBoardState,
-        },
-        winner: null,
-      },
+      gameState,
     );
     main.appendChild(aiGameView.render());
     new AIGameController(aiGameLoopModel, aiGameView, eventBus);

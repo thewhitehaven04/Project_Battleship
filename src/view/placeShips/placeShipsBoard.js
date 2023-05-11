@@ -13,7 +13,7 @@ shipTypeMapping
 /**
  * @typedef {Object} ShipPlacementRequest
  * @property {?import('../../service/ship.js').ShipDto} ship
- * @property {Array<Array<import('../../service/gameboard').BoardCellDto>>} boardState
+ * @property {import('../../service/gameboard').BoardCellDto[][]} boardState
  */
 
 /**

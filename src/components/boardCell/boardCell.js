@@ -27,9 +27,9 @@ class BoardCell {
   constructor(boardCell) {
     this.root = document.createElement('div');
     this.root.classList.add('board-cell');
-    this.root.appendChild(this.#getIcon(this.#boardCellData));
 
     this.#boardCellData = boardCell;
+    this.root.appendChild(this.#getIcon(this.#boardCellData));
   }
 
   /** @param {import('../../service/gameboard').BoardCellDto} boardCell */
