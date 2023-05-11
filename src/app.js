@@ -61,6 +61,7 @@ const app = function () {
   }
 
   function startAIGame() {
+    main.replaceChildren();
     eventBus.subscribe(GAME_FINISHED_EVENT, async () => {
       setTimeout(endGameHandler, 5000);
     });

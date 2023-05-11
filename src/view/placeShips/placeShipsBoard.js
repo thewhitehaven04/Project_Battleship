@@ -120,7 +120,8 @@ class PlaceShipsBoardView {
       }
     };
     this.#mouseEnterListener = (/** @type {MouseEvent} */ event) => {
-      if (event.target?.matches('.board-cell')) {
+      const closest = event.target?.closest('.board-cell'); 
+      if (closest) {
         const closest = event.target.closest('.board-cell');
         const line = this.#getLineOfCells(
           this.board.getCoordinatesByBoardCell(closest),
@@ -133,7 +134,7 @@ class PlaceShipsBoardView {
 
     this.#boardContainer.addEventListener('click', this.#currentListener);
     this.#boardContainer.addEventListener(
-      'mouseover',
+      'mousemove',
       this.#mouseEnterListener,
     );
     this.#boardContainer.addEventListener(
